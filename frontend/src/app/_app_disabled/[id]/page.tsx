@@ -12,6 +12,13 @@ import { formatDate, truncateAddress } from "@/lib/utils";
 // TODO: Fetch app data from contract by ID
 // Contract Address: 0x3faa42a8639fcb076160d553e8d6e05add7d97a5
 
+// Required for static export - generates no pages initially (apps will load client-side)
+export async function generateStaticParams() {
+  // TODO: Fetch app IDs from contract when integration is complete
+  // For now, return empty array (pages accessible via client-side navigation)
+  return [];
+}
+
 // User-friendly network names
 const networkNames: Record<number, string> = {
   33529: "Varity Network",
