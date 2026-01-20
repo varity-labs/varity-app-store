@@ -1,0 +1,10 @@
+[workspace]
+members = ["."]
+
+[workspace.networks.varity-testnet]
+endpoint = "https://rpc-varity-testnet-rroe52pwjp.t.conduit.xyz"
+chain_id = 33529
+explorer = "https://explorer-varity-testnet-rroe52pwjp.t.conduit.xyz"
+
+[contract]
+name = "varity-app-registry"
