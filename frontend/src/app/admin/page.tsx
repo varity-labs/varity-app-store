@@ -116,17 +116,55 @@ export default function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4">
-        <AlertTriangle className="h-12 w-12 text-amber-500" />
-        <h1 className="mt-4 text-xl font-semibold text-slate-100">Access Denied</h1>
-        <p className="mt-2 text-sm text-slate-500">
-          You do not have permission to access this page.
-        </p>
-        <Link
-          href="/"
-          className="mt-4 rounded-md border border-slate-800 px-4 py-2 text-sm font-medium text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200"
-        >
-          Return to Browse
-        </Link>
+        <div className="mx-auto max-w-lg text-center">
+          <AlertTriangle className="mx-auto h-12 w-12 text-amber-500" />
+          <h1 className="mt-4 text-xl font-semibold text-slate-100">Contract Needs Initialization</h1>
+          <p className="mt-2 text-sm text-slate-500">
+            The smart contract needs to be initialized. This is a one-time setup that will set your wallet as the first admin.
+          </p>
+
+          {/* Contract Info */}
+          <div className="mt-6 rounded-lg border border-slate-800 bg-slate-900/50 p-4 text-left">
+            <h3 className="text-sm font-medium text-slate-200">What does this do?</h3>
+            <ul className="mt-2 space-y-1 text-xs text-slate-400">
+              <li>• Sets your wallet ({account?.address?.slice(0, 10)}...) as contract owner</li>
+              <li>• Adds you as the first admin</li>
+              <li>• Enables app submission and approval features</li>
+              <li>• Can only be done once (one-time setup)</li>
+            </ul>
+          </div>
+
+          {/* Initialize Button */}
+          <button
+            onClick={handleInitialize}
+            disabled={contractLoading}
+            className="mt-6 inline-flex items-center gap-2 rounded-md bg-amber-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {contractLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {contractLoading ? "Initializing Contract..." : "Initialize Contract Now"}
+          </button>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="mt-4 rounded-lg border border-red-900 bg-red-950/50 p-3 text-left">
+              <p className="text-xs text-red-400">{errorMessage}</p>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mt-4 rounded-lg border border-emerald-900 bg-emerald-950/50 p-3 text-left">
+              <p className="text-xs text-emerald-400">{successMessage}</p>
+            </div>
+          )}
+
+          <Link
+            href="/"
+            className="mt-4 inline-block rounded-md border border-slate-800 px-4 py-2 text-sm font-medium text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200"
+          >
+            Return to Browse
+          </Link>
+        </div>
       </div>
     );
   }
