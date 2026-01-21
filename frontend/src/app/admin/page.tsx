@@ -31,6 +31,7 @@ export default function AdminPage() {
     error: contractError,
     txHash,
     resetState,
+    account,
   } = useContract();
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -88,6 +89,28 @@ export default function AdminPage() {
       fetchPendingApps();
     }
   }, [isAdmin, isCheckingAdmin, getPendingApps]);
+
+  const handleInitialize = async () => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setInitializeSuccess(false);
+    resetState();
+
+    try {
+      await initialize();
+      setInitializeSuccess(true);
+      setSuccessMessage("Contract initialized successfully! You are now set as admin.");
+      setShowInitialize(false);
+      setTimeout(() => {
+        setSuccessMessage(null);
+        window.location.reload(); // Reload to check admin status
+      }, 3000);
+    } catch (error) {
+      console.error("Initialize error:", error);
+      const message = error instanceof Error ? error.message : "Failed to initialize contract";
+      setErrorMessage(message);
+    }
+  };
 
   if (!authenticated) {
     return (
@@ -247,28 +270,6 @@ export default function AdminPage() {
       setErrorMessage(message);
     } finally {
       setProcessingId(null);
-    }
-  };
-
-  const handleInitialize = async () => {
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    setInitializeSuccess(false);
-    resetState();
-
-    try {
-      await initialize();
-      setInitializeSuccess(true);
-      setSuccessMessage("Contract initialized successfully! You are now set as admin.");
-      setShowInitialize(false);
-      setTimeout(() => {
-        setSuccessMessage(null);
-        window.location.reload(); // Reload to check admin status
-      }, 3000);
-    } catch (error) {
-      console.error("Initialize error:", error);
-      const message = error instanceof Error ? error.message : "Failed to initialize contract";
-      setErrorMessage(message);
     }
   };
 
