@@ -1,29 +1,93 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/Badge";
-import { Check, X, Star, ExternalLink, AlertTriangle } from "lucide-react";
+import { Check, X, Star, ExternalLink, AlertTriangle, Loader2 } from "lucide-react";
 import type { AppData } from "@/lib/constants";
-
-// TODO: Fetch admin addresses from contract owner or admin mapping
-// Contract Address: 0x3faa42a8639fcb076160d553e8d6e05add7d97a5
-const ADMIN_ADDRESSES: string[] = [];
+import { useContract } from "@/hooks/useContract";
+import { varityL3 } from "@/lib/thirdweb";
 
 export default function AdminPage() {
   const { authenticated, login, user } = useAuth();
-  // TODO: Fetch pending apps from contract (apps where isApproved = false)
   const [pendingApps, setPendingApps] = useState<AppData[]>([]);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectModal, setShowRejectModal] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+  const [isLoadingApps, setIsLoadingApps] = useState(false);
+
+  const {
+    getPendingApps,
+    isAdmin: checkIsAdmin,
+    approveApp,
+    rejectApp,
+    featureApp,
+    initialize,
+    isLoading: contractLoading,
+    error: contractError,
+    txHash,
+    resetState,
+  } = useContract();
+
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showInitialize, setShowInitialize] = useState(false);
+  const [initializeSuccess, setInitializeSuccess] = useState(false);
 
   // Check if user is admin
-  const isAdmin = user?.wallet?.address
-    ? ADMIN_ADDRESSES.includes(user.wallet.address.toLowerCase())
-    : false;
+  useEffect(() => {
+    async function checkAdminStatus() {
+      if (!authenticated || !user?.wallet?.address) {
+        setIsAdmin(false);
+        setIsCheckingAdmin(false);
+        return;
+      }
+
+      setIsCheckingAdmin(true);
+      try {
+        const adminStatus = await checkIsAdmin(user.wallet.address);
+        setIsAdmin(adminStatus);
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+        setIsAdmin(false);
+      } finally {
+        setIsCheckingAdmin(false);
+      }
+    }
+
+    checkAdminStatus();
+  }, [authenticated, user?.wallet?.address, checkIsAdmin]);
+
+  // Fetch pending apps if user is admin
+  useEffect(() => {
+    async function fetchPendingApps() {
+      if (!isAdmin) {
+        setPendingApps([]);
+        return;
+      }
+
+      setIsLoadingApps(true);
+      try {
+        const apps = await getPendingApps(100);
+        // Filter to only show pending (not approved) and active apps
+        const pending = apps.filter(app => !app.isApproved && app.isActive);
+        setPendingApps(pending);
+      } catch (error) {
+        console.error("Error loading pending apps:", error);
+        setPendingApps([]);
+      } finally {
+        setIsLoadingApps(false);
+      }
+    }
+
+    if (!isCheckingAdmin && isAdmin) {
+      fetchPendingApps();
+    }
+  }, [isAdmin, isCheckingAdmin, getPendingApps]);
 
   if (!authenticated) {
     return (
@@ -36,6 +100,15 @@ export default function AdminPage() {
         >
           Sign In
         </button>
+      </div>
+    );
+  }
+
+  if (isCheckingAdmin) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center px-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-800 border-t-slate-300"></div>
+        <p className="mt-4 text-sm text-slate-500">Checking permissions...</p>
       </div>
     );
   }
@@ -60,28 +133,56 @@ export default function AdminPage() {
 
   const handleApprove = async (appId: string) => {
     setProcessingId(appId);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    resetState();
+
     try {
-      // TODO: Call approve_app on contract
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call contract to approve app
+      await approveApp(BigInt(appId));
+
+      // Success - remove from pending list and show message
       setPendingApps((prev) => prev.filter((app) => app.id.toString() !== appId));
+      setSuccessMessage("Application approved successfully!");
+
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(null), 5000);
     } catch (error) {
       console.error("Approve error:", error);
+      const message = error instanceof Error ? error.message : "Failed to approve application";
+      setErrorMessage(message);
     } finally {
       setProcessingId(null);
     }
   };
 
   const handleReject = async (appId: string) => {
-    if (!rejectReason.trim()) return;
+    if (!rejectReason.trim()) {
+      setErrorMessage("Please provide a reason for rejection");
+      return;
+    }
+
     setProcessingId(appId);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    resetState();
+
     try {
-      // TODO: Call reject_app on contract with reason
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call contract to reject app
+      await rejectApp(BigInt(appId), rejectReason);
+
+      // Success - remove from pending list and show message
       setPendingApps((prev) => prev.filter((app) => app.id.toString() !== appId));
       setShowRejectModal(null);
       setRejectReason("");
+      setSuccessMessage("Application rejected successfully");
+
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(null), 5000);
     } catch (error) {
       console.error("Reject error:", error);
+      const message = error instanceof Error ? error.message : "Failed to reject application";
+      setErrorMessage(message);
     } finally {
       setProcessingId(null);
     }
@@ -89,14 +190,47 @@ export default function AdminPage() {
 
   const handleFeature = async (appId: string) => {
     setProcessingId(appId);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    resetState();
+
     try {
-      // TODO: Call feature_app on contract
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Featured app:", appId);
+      // Call contract to feature app
+      await featureApp(BigInt(appId));
+
+      // Success - show message
+      setSuccessMessage("Application featured successfully!");
+
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(null), 5000);
     } catch (error) {
       console.error("Feature error:", error);
+      const message = error instanceof Error ? error.message : "Failed to feature application";
+      setErrorMessage(message);
     } finally {
       setProcessingId(null);
+    }
+  };
+
+  const handleInitialize = async () => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setInitializeSuccess(false);
+    resetState();
+
+    try {
+      await initialize();
+      setInitializeSuccess(true);
+      setSuccessMessage("Contract initialized successfully! You are now set as admin.");
+      setShowInitialize(false);
+      setTimeout(() => {
+        setSuccessMessage(null);
+        window.location.reload(); // Reload to check admin status
+      }, 3000);
+    } catch (error) {
+      console.error("Initialize error:", error);
+      const message = error instanceof Error ? error.message : "Failed to initialize contract";
+      setErrorMessage(message);
     }
   };
 
@@ -109,6 +243,72 @@ export default function AdminPage() {
           Review and manage pending application submissions.
         </p>
       </div>
+
+      {/* Initialize Contract Button (one-time setup) */}
+      {authenticated && !isCheckingAdmin && !isAdmin && (
+        <div className="mt-6 rounded-lg border border-amber-900 bg-amber-950/50 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 flex-shrink-0 text-amber-400" />
+            <div className="flex-1">
+              <h3 className="font-medium text-amber-400">Contract Not Initialized</h3>
+              <p className="mt-1 text-sm text-amber-400/80">
+                The contract needs to be initialized. Click below to set yourself as the first admin.
+              </p>
+              <button
+                onClick={handleInitialize}
+                disabled={contractLoading}
+                className="mt-3 inline-flex items-center gap-2 rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {contractLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {contractLoading ? "Initializing..." : "Initialize Contract"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success message */}
+      {successMessage && (
+        <div className="mt-6 flex items-start gap-3 rounded-lg border border-emerald-900 bg-emerald-950/50 p-4">
+          <Check className="h-5 w-5 flex-shrink-0 text-emerald-400" />
+          <div className="flex-1">
+            <h3 className="font-medium text-emerald-400">{successMessage}</h3>
+            {txHash && varityL3.blockExplorers?.[0] && (
+              <a
+                href={`${varityL3.blockExplorers[0].url}/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 underline"
+              >
+                View transaction
+              </a>
+            )}
+          </div>
+          <button
+            onClick={() => setSuccessMessage(null)}
+            className="text-emerald-400/60 hover:text-emerald-400"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Error message */}
+      {errorMessage && (
+        <div className="mt-6 flex items-start gap-3 rounded-lg border border-red-900 bg-red-950/50 p-4">
+          <AlertTriangle className="h-5 w-5 flex-shrink-0 text-red-400" />
+          <div className="flex-1">
+            <h3 className="font-medium text-red-400">Error</h3>
+            <p className="mt-1 text-sm text-red-400/80">{errorMessage}</p>
+          </div>
+          <button
+            onClick={() => setErrorMessage(null)}
+            className="text-red-400/60 hover:text-red-400"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -129,7 +329,13 @@ export default function AdminPage() {
       {/* Pending apps */}
       <div className="mt-8">
         <h2 className="text-lg font-medium text-slate-100">Pending Applications</h2>
-        {pendingApps.length === 0 ? (
+        {isLoadingApps ? (
+          <div className="mt-4 space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 animate-pulse rounded-lg bg-slate-800" />
+            ))}
+          </div>
+        ) : pendingApps.length === 0 ? (
           <div className="mt-4 flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-800 bg-slate-900/30 p-12 text-center">
             <Check className="h-8 w-8 text-emerald-500" />
             <h3 className="mt-3 text-base font-medium text-slate-200">All caught up</h3>
@@ -181,27 +387,35 @@ export default function AdminPage() {
                 <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-800/50 pt-4">
                   <button
                     onClick={() => handleApprove(app.id.toString())}
-                    disabled={processingId === app.id.toString()}
-                    className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+                    disabled={processingId === app.id.toString() || contractLoading}
+                    className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Check className="h-4 w-4" />
-                    Approve
+                    {processingId === app.id.toString() ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
+                    {processingId === app.id.toString() ? "Approving..." : "Approve"}
                   </button>
                   <button
                     onClick={() => setShowRejectModal(app.id.toString())}
-                    disabled={processingId === app.id.toString()}
-                    className="inline-flex items-center gap-2 rounded-md border border-red-900 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-950 disabled:opacity-50"
+                    disabled={processingId === app.id.toString() || contractLoading}
+                    className="inline-flex items-center gap-2 rounded-md border border-red-900 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-950 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <X className="h-4 w-4" />
                     Reject
                   </button>
                   <button
                     onClick={() => handleFeature(app.id.toString())}
-                    disabled={processingId === app.id.toString()}
-                    className="inline-flex items-center gap-2 rounded-md border border-slate-800 px-4 py-2 text-sm font-medium text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200 disabled:opacity-50"
+                    disabled={processingId === app.id.toString() || contractLoading}
+                    className="inline-flex items-center gap-2 rounded-md border border-slate-800 px-4 py-2 text-sm font-medium text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Star className="h-4 w-4" />
-                    Feature
+                    {processingId === app.id.toString() ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Star className="h-4 w-4" />
+                    )}
+                    {processingId === app.id.toString() ? "Featuring..." : "Feature"}
                   </button>
                 </div>
               </div>
@@ -237,10 +451,11 @@ export default function AdminPage() {
               </button>
               <button
                 onClick={() => handleReject(showRejectModal)}
-                disabled={!rejectReason.trim() || processingId === showRejectModal}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 disabled:opacity-50"
+                disabled={!rejectReason.trim() || processingId === showRejectModal || contractLoading}
+                className="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Reject Application
+                {processingId === showRejectModal && <Loader2 className="h-4 w-4 animate-spin" />}
+                {processingId === showRejectModal ? "Rejecting..." : "Reject Application"}
               </button>
             </div>
           </div>
