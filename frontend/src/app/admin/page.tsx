@@ -61,7 +61,7 @@ export default function AdminPage() {
     }
 
     checkAdminStatus();
-  }, [authenticated, user?.wallet?.address, checkIsAdmin]);
+  }, [authenticated, user?.wallet?.address]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch pending apps if user is admin
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function AdminPage() {
     if (!isCheckingAdmin && isAdmin) {
       fetchPendingApps();
     }
-  }, [isAdmin, isCheckingAdmin, getPendingApps]);
+  }, [isAdmin, isCheckingAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInitialize = async () => {
     setErrorMessage(null);
