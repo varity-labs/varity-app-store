@@ -8,6 +8,7 @@ import { AppGrid } from "@/components/AppGrid";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { AppData } from "@/lib/constants";
+import { DEMO_APPS } from "@/lib/constants";
 import { useContract } from "@/hooks/useContract";
 
 const APPS_PER_PAGE = 12;
@@ -16,7 +17,7 @@ export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedChain, setSelectedChain] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [apps, setApps] = useState<AppData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -25,17 +26,21 @@ export default function BrowsePage() {
   // Fetch approved apps from contract on mount
   useEffect(() => {
     async function fetchApps() {
-      setIsLoading(true);
       try {
         const fetchedApps = await getAllApps(100);
         // Filter to only show approved apps (getAllApps already returns only approved + active)
         const approvedApps = fetchedApps.filter(app => app.isApproved && app.isActive);
-        setApps(approvedApps);
+
+        // If no apps from contract, use demo apps for presentation
+        if (approvedApps.length === 0) {
+          setApps(DEMO_APPS);
+        } else {
+          setApps(approvedApps);
+        }
       } catch (error) {
         console.error("Error loading apps:", error);
-        setApps([]);
-      } finally {
-        setIsLoading(false);
+        // Use demo apps as fallback on error
+        setApps(DEMO_APPS);
       }
     }
 

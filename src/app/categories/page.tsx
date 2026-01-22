@@ -5,37 +5,50 @@ import { APP_CATEGORIES } from "@/lib/constants";
 import type { AppData } from "@/lib/constants";
 import { useContract } from "@/hooks/useContract";
 import Link from "next/link";
-import { ArrowRight, Grid3x3 } from "lucide-react";
+import {
+  ArrowRight,
+  Grid3x3,
+  Briefcase,
+  BarChart3,
+  DollarSign,
+  Settings,
+  CheckSquare,
+  Building2,
+  MessageSquare,
+  Database,
+  Shield,
+  Package,
+  type LucideIcon
+} from "lucide-react";
 
-// Category icons/emojis mapping
-const categoryIcons: Record<string, string> = {
-  "Business Tools": "💼",
-  "Analytics": "📊",
-  "Finance": "💰",
-  "Developer Tools": "⚙️",
-  "Productivity": "✅",
-  "Infrastructure": "🏗️",
-  "Communication": "💬",
-  "Data Management": "🗄️",
-  "Security": "🔒",
-  "Other": "📦",
+// Category icons mapping - professional Lucide React icons
+const categoryIcons: Record<string, LucideIcon> = {
+  "Business Tools": Briefcase,
+  "Analytics": BarChart3,
+  "Finance": DollarSign,
+  "Developer Tools": Settings,
+  "Productivity": CheckSquare,
+  "Infrastructure": Building2,
+  "Communication": MessageSquare,
+  "Data Management": Database,
+  "Security": Shield,
+  "Other": Package,
 };
 
 interface CategoryStats {
   category: string;
   count: number;
-  icon: string;
+  icon: LucideIcon;
 }
 
 export default function CategoriesPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [apps, setApps] = useState<AppData[]>([]);
   const { getAllApps } = useContract();
 
   // Fetch apps on mount
   useEffect(() => {
     async function fetchApps() {
-      setIsLoading(true);
       try {
         const fetchedApps = await getAllApps(100);
         // Filter to only show approved and active apps
@@ -44,8 +57,6 @@ export default function CategoriesPage() {
       } catch (error) {
         console.error("Error loading apps:", error);
         setApps([]);
-      } finally {
-        setIsLoading(false);
       }
     }
 
@@ -59,7 +70,7 @@ export default function CategoriesPage() {
       return {
         category,
         count,
-        icon: categoryIcons[category] || "📦",
+        icon: categoryIcons[category] || Package,
       };
     });
 
@@ -100,34 +111,37 @@ export default function CategoriesPage() {
           <CategoriesGridSkeleton />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {categoryStats.map((stat) => (
-              <Link
-                key={stat.category}
-                href={`/?category=${encodeURIComponent(stat.category)}`}
-                className="group card p-8 hover:border-brand-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(20,184,166,0.15)]"
-              >
-                {/* Icon */}
-                <div className="flex items-center justify-center h-16 w-16 rounded-xl bg-background-tertiary border border-border group-hover:border-brand-500 transition-all duration-300 text-4xl mb-4">
-                  {stat.icon}
-                </div>
+            {categoryStats.map((stat) => {
+              const IconComponent = stat.icon;
+              return (
+                <Link
+                  key={stat.category}
+                  href={`/?category=${encodeURIComponent(stat.category)}`}
+                  className="group card p-8 hover:border-brand-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(20,184,166,0.15)]"
+                >
+                  {/* Icon */}
+                  <div className="flex items-center justify-center h-16 w-16 rounded-xl bg-background-tertiary border border-border group-hover:border-brand-500 transition-all duration-300 mb-4">
+                    <IconComponent className="h-8 w-8 text-brand-400 group-hover:text-brand-300 transition-colors" />
+                  </div>
 
-                {/* Category name */}
-                <h2 className="text-xl font-semibold text-foreground group-hover:text-brand-400 transition-colors">
-                  {stat.category}
-                </h2>
+                  {/* Category name */}
+                  <h2 className="text-xl font-semibold text-foreground group-hover:text-brand-400 transition-colors">
+                    {stat.category}
+                  </h2>
 
-                {/* App count */}
-                <p className="mt-2 text-body-sm text-foreground-secondary">
-                  {stat.count} {stat.count === 1 ? "application" : "applications"}
-                </p>
+                  {/* App count */}
+                  <p className="mt-2 text-body-sm text-foreground-secondary">
+                    {stat.count} {stat.count === 1 ? "application" : "applications"}
+                  </p>
 
-                {/* Arrow indicator */}
-                <div className="mt-4 flex items-center gap-2 text-sm font-medium text-brand-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Browse apps
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </div>
-              </Link>
-            ))}
+                  {/* Arrow indicator */}
+                  <div className="mt-4 flex items-center gap-2 text-sm font-medium text-brand-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Browse apps
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
 
