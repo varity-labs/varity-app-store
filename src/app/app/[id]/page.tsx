@@ -9,10 +9,11 @@ import { ArrowLeft, ExternalLink, Github, Calendar, User, AlertCircle } from "lu
 import type { AppData } from "@/lib/constants";
 import { formatDate, truncateAddress } from "@/lib/utils";
 import { useContract } from "@/hooks/useContract";
+import { StructuredData, createAppStructuredData, createAppBreadcrumbData } from "@/components/StructuredData";
 
 // User-friendly network names
 const networkNames: Record<number, string> = {
-  33529: "Varity Network",
+  33529: "Varity",
   421614: "Arbitrum Test",
   42161: "Arbitrum",
   8453: "Base",
@@ -108,10 +109,25 @@ export default function AppDetailPage() {
 
   const networkName = networkNames[Number(app.chainId)] || "Unknown";
 
+  // Create structured data for SEO
+  const appStructuredData = createAppStructuredData({
+    name: app.name,
+    description: app.description,
+    appUrl: app.appUrl,
+    logoUrl: app.logoUrl || "",
+    category: app.category,
+    developer: app.developer,
+  });
+
+  const breadcrumbData = createAppBreadcrumbData(appId, app.name);
+
   return (
-    <div className="min-h-screen">
-      {/* Back link */}
-      <div className="border-b border-slate-800/50">
+    <>
+      <StructuredData data={appStructuredData} />
+      <StructuredData data={breadcrumbData} />
+      <div className="min-h-screen">
+        {/* Back link */}
+        <div className="border-b border-slate-800/50">
         <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8">
           <Link
             href="/"
@@ -121,12 +137,12 @@ export default function AppDetailPage() {
             Back to Browse
           </Link>
         </div>
-      </div>
+        </div>
 
-      {/* Main content */}
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        {/* Main content */}
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           {/* Logo */}
           <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-slate-800 sm:h-28 sm:w-28">
             {app.logoUrl ? (
@@ -184,101 +200,102 @@ export default function AppDetailPage() {
               )}
             </div>
           </div>
-        </div>
-
-        {/* Details grid */}
-        <div className="mt-10 grid gap-8 lg:grid-cols-3">
-          {/* Description */}
-          <div className="lg:col-span-2">
-            <h2 className="text-lg font-semibold text-slate-100">About</h2>
-            <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-400">
-              {app.description}
-            </div>
-
-            {/* Screenshots placeholder */}
-            {app.screenshots && app.screenshots.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-lg font-semibold text-slate-100">Screenshots</h2>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {app.screenshots.map((url, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-video overflow-hidden rounded-lg bg-slate-800"
-                    >
-                      <Image
-                        src={url}
-                        alt={`${app.name} screenshot ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Metadata */}
-            <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-5">
-              <h3 className="text-sm font-semibold text-slate-200">Details</h3>
-              <dl className="mt-4 space-y-4 text-sm">
-                <div className="flex items-start gap-3">
-                  <User className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" />
-                  <div>
-                    <dt className="text-slate-500">Developer</dt>
-                    <dd className="mt-1 font-mono text-slate-300">
-                      {truncateAddress(app.developer, 6)}
-                    </dd>
+          {/* Details grid */}
+          <div className="mt-10 grid gap-8 lg:grid-cols-3">
+            {/* Description */}
+            <div className="lg:col-span-2">
+              <h2 className="text-lg font-semibold text-slate-100">About</h2>
+              <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-400">
+                {app.description}
+              </div>
+
+              {/* Screenshots placeholder */}
+              {app.screenshots && app.screenshots.length > 0 && (
+                <div className="mt-8">
+                  <h2 className="text-lg font-semibold text-slate-100">Screenshots</h2>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {app.screenshots.map((url, index) => (
+                      <div
+                        key={index}
+                        className="relative aspect-video overflow-hidden rounded-lg bg-slate-800"
+                      >
+                        <Image
+                          src={url}
+                          alt={`${app.name} screenshot ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" />
-                  <div>
-                    <dt className="text-slate-500">Published</dt>
-                    <dd className="mt-1 text-slate-300">
-                      {formatDate(app.createdAt)}
-                    </dd>
-                  </div>
-                </div>
-              </dl>
+              )}
             </div>
 
-            {/* External links */}
-            <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-5">
-              <h3 className="text-sm font-semibold text-slate-200">Links</h3>
-              <ul className="mt-4 space-y-3 text-sm">
-                <li>
-                  <a
-                    href={app.appUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-slate-400 transition-colors hover:text-slate-200"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Application Website
-                  </a>
-                </li>
-                {app.githubUrl && (
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Metadata */}
+              <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-5">
+                <h3 className="text-sm font-semibold text-slate-200">Details</h3>
+                <dl className="mt-4 space-y-4 text-sm">
+                  <div className="flex items-start gap-3">
+                    <User className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" />
+                    <div>
+                      <dt className="text-slate-500">Developer</dt>
+                      <dd className="mt-1 font-mono text-slate-300">
+                        {truncateAddress(app.developer, 6)}
+                      </dd>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-500" />
+                    <div>
+                      <dt className="text-slate-500">Published</dt>
+                      <dd className="mt-1 text-slate-300">
+                        {formatDate(app.createdAt)}
+                      </dd>
+                    </div>
+                  </div>
+                </dl>
+              </div>
+
+              {/* External links */}
+              <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-5">
+                <h3 className="text-sm font-semibold text-slate-200">Links</h3>
+                <ul className="mt-4 space-y-3 text-sm">
                   <li>
                     <a
-                      href={app.githubUrl}
+                      href={app.appUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-slate-400 transition-colors hover:text-slate-200"
                     >
-                      <Github className="h-4 w-4" />
-                      Source Code
+                      <ExternalLink className="h-4 w-4" />
+                      Application Website
                     </a>
                   </li>
-                )}
-              </ul>
+                  {app.githubUrl && (
+                    <li>
+                      <a
+                        href={app.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-slate-400 transition-colors hover:text-slate-200"
+                      >
+                        <Github className="h-4 w-4" />
+                        Source Code
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

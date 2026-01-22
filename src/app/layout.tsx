@@ -16,26 +16,24 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://store.varity.so"),
   title: {
-    default: "Varity App Store - Discover Enterprise Applications",
+    default: "Varity App Store - Discover Quality Applications",
     template: "%s | Varity App Store",
   },
   description:
-    "Discover and deploy enterprise-grade applications with 70-85% lower infrastructure costs. The trusted marketplace for business software.",
+    "Discover quality applications for your business and personal needs. Browse our curated collection of tools and services.",
   keywords: [
     "app store",
+    "applications",
+    "business tools",
+    "productivity apps",
     "enterprise software",
     "business applications",
-    "Varity",
-    "web3",
-    "decentralized apps",
-    "blockchain applications",
-    "enterprise app marketplace",
-    "Web3 marketplace",
-    "decentralized application store",
-    "infrastructure cost savings",
-    "cloud alternative",
-    "Arbitrum apps",
-    "IPFS hosting",
+    "software marketplace",
+    "cloud applications",
+    "productivity software",
+    "business solutions",
+    "application marketplace",
+    "software catalog",
   ],
   authors: [{ name: "Varity" }],
   creator: "Varity",
@@ -43,31 +41,39 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://store.varity.so",
     siteName: "Varity App Store",
-    title: "Varity App Store - Discover Enterprise Applications",
+    title: "Varity App Store - Discover Quality Applications",
     description:
-      "Discover and deploy enterprise-grade applications with 70-85% lower infrastructure costs. The trusted marketplace for business software.",
+      "Discover quality applications for your business and personal needs. Browse our curated collection of tools and services.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Varity App Store - Enterprise Application Marketplace",
+        alt: "Varity App Store - Quality Applications Marketplace",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Varity App Store - Discover Enterprise Applications",
+    title: "Varity App Store - Discover Quality Applications",
     description:
-      "Discover and deploy enterprise-grade applications with 70-85% lower infrastructure costs. The trusted marketplace for business software.",
+      "Discover quality applications for your business and personal needs. Browse our curated collection of tools and services.",
     images: ["/og-image.png"],
     creator: "@VarityHQ",
+    site: "@VarityHQ",
   },
   icons: {
     icon: [
@@ -77,6 +83,11 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
     apple: "/logo/varity-logo-color.svg",
   },
+  verification: {
+    google: "google-site-verification-code-here",
+    // Add actual verification codes when available
+  },
+  category: "technology",
 };
 
 export default function RootLayout({

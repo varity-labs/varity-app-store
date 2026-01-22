@@ -14,6 +14,7 @@ interface NavItem {
 const navigation: NavItem[] = [
   { label: "Browse", href: "/" },
   { label: "Categories", href: "/categories" },
+  { label: "Help", href: "/help" },
 ];
 
 export function Header() {

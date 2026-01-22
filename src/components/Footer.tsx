@@ -33,29 +33,27 @@ export function Footer() {
             <ul className="mt-4 space-y-3">
               <li>
                 <a
-                  href="https://www.varity.so"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="https://www.varity.so/about/"
                   className="text-body-sm text-foreground-secondary transition-colors hover:text-brand-400"
                 >
                   About
                 </a>
               </li>
               <li>
-                <Link
-                  href="/privacy"
+                <a
+                  href="https://www.varity.so/privacy/"
                   className="text-body-sm text-foreground-secondary transition-colors hover:text-brand-400"
                 >
                   Privacy
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  href="/terms"
+                <a
+                  href="https://www.varity.so/terms/"
                   className="text-body-sm text-foreground-secondary transition-colors hover:text-brand-400"
                 >
                   Terms
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -76,7 +74,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:hello@varity.so"
+                  href="https://www.varity.so/contact/"
                   className="text-body-sm text-foreground-secondary transition-colors hover:text-brand-400"
                 >
                   Contact Us
@@ -84,7 +82,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://developer.varity.so"
+                  href="https://developer.store.varity.so"
                   className="text-body-sm text-foreground-secondary transition-colors hover:text-brand-400"
                 >
                   Submit Your App

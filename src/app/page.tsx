@@ -100,7 +100,7 @@ export default function BrowsePage() {
             </h1>
 
             <p className="mt-6 text-body-lg text-foreground-secondary max-w-2xl mx-auto">
-              World-class applications on decentralized infrastructure. Deploy with confidence and save 70-85% compared to traditional cloud providers.
+              World-class applications on modern infrastructure. Deploy with confidence and save 70-85% compared to traditional cloud providers.
             </p>
 
             {/* Search */}
@@ -225,13 +225,13 @@ export default function BrowsePage() {
                 Join the curated marketplace of enterprise-grade applications. Reach serious customers while slashing your infrastructure costs by up to 85%.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-                <Link
-                  href="/submit"
+                <a
+                  href="https://developer.store.varity.so"
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-200 ease-out bg-brand-500 text-slate-950 hover:bg-brand-400 hover:shadow-[0_0_20px_rgba(20,184,166,0.5),0_0_40px_rgba(20,184,166,0.3)] h-12 px-8"
                 >
                   Submit Application
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
                 <a
                   href="https://docs.varity.so"
                   target="_blank"

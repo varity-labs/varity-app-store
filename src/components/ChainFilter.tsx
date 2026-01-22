@@ -10,7 +10,7 @@ interface ChainFilterProps {
 
 // User-friendly network names
 const networkDisplayNames: Record<number, string> = {
-  33529: "Varity Network",
+  33529: "Varity",
   421614: "Arbitrum Test",
   42161: "Arbitrum",
   8453: "Base",
