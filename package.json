@@ -1,0 +1,18 @@
+{
+  "name": "varity-app-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Varity App Store - Dual Portal Architecture",
+  "scripts": {
+    "build:user": "cd frontend-user && npm install && npm run build",
+    "build:developer": "cd frontend-developer && npm install && npm run build",
+    "dev:user": "cd frontend-user && npm run dev",
+    "dev:developer": "cd frontend-developer && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/varity-labs/varity-app-store.git"
+  },
+  "author": "Varity Labs",
+  "license": "MIT"
+}
