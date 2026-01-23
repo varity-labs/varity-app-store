@@ -17,7 +17,7 @@ export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedChain, setSelectedChain] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [apps, setApps] = useState<AppData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -26,6 +26,7 @@ export default function BrowsePage() {
   // Fetch approved apps from contract on mount
   useEffect(() => {
     async function fetchApps() {
+      setIsLoading(true);
       try {
         const fetchedApps = await getAllApps(100);
         // Filter to only show approved apps (getAllApps already returns only approved + active)
@@ -41,6 +42,8 @@ export default function BrowsePage() {
         console.error("Error loading apps:", error);
         // Use demo apps as fallback on error
         setApps(DEMO_APPS);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -91,21 +94,24 @@ export default function BrowsePage() {
       <section className="relative overflow-hidden border-b border-border">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-brand-950/30 via-background to-background" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--brand-500)/10,transparent_50%)]" />
 
         <div className="relative section-container section-padding">
-          <div className="mx-auto max-w-3xl text-center">
-            {/* Overline */}
-            <p className="text-overline text-brand-400 mb-4">
-              Enterprise App Marketplace
-            </p>
+          <div className="mx-auto max-w-4xl text-center">
+            {/* Trust Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-brand-500/10 border border-brand-500/20 px-4 py-2 mb-6">
+              <span className="text-sm font-medium text-brand-400">
+                Trusted by businesses worldwide
+              </span>
+            </div>
 
             <h1 className="text-display-lg md:text-display-xl text-foreground">
-              Discover{" "}
-              <span className="text-gradient">Enterprise Applications</span>
+              Find the Perfect App for{" "}
+              <span className="text-gradient">Your Business</span>
             </h1>
 
             <p className="mt-6 text-body-lg text-foreground-secondary max-w-2xl mx-auto">
-              World-class applications on modern infrastructure. Deploy with confidence and save 70-85% compared to traditional cloud providers.
+              Browse our curated collection of business tools, productivity apps, and professional software. Every app is reviewed for quality and security.
             </p>
 
             {/* Search */}
@@ -113,8 +119,17 @@ export default function BrowsePage() {
               <SearchBar
                 value={searchQuery}
                 onChange={setSearchQuery}
-                placeholder="Search applications..."
+                placeholder="Search for apps..."
               />
+            </div>
+
+            {/* Quick Stats */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-8 text-sm text-foreground-muted">
+              <span>100+ Apps</span>
+              <span className="hidden sm:inline">•</span>
+              <span>Verified & Secure</span>
+              <span className="hidden sm:inline">•</span>
+              <span>Free to Browse</span>
             </div>
           </div>
         </div>
@@ -224,27 +239,25 @@ export default function BrowsePage() {
           <div className="card bg-gradient-to-br from-background-secondary to-background-tertiary p-8 md:p-12">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-display-sm text-foreground">
-                Ready to Launch Your Application?
+                Need Help Finding the Right App?
               </h2>
               <p className="mt-4 text-body-md text-foreground-secondary">
-                Join the curated marketplace of enterprise-grade applications. Reach serious customers while slashing your infrastructure costs by up to 85%.
+                Browse by category, read reviews, and find the perfect tool for your needs. All apps are verified for quality and security.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-                <a
-                  href="https://developer.store.varity.so"
+                <Link
+                  href="/categories"
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-200 ease-out bg-brand-500 text-slate-950 hover:bg-brand-400 hover:shadow-[0_0_20px_rgba(20,184,166,0.5),0_0_40px_rgba(20,184,166,0.3)] h-12 px-8"
                 >
-                  Submit Application
+                  Browse Categories
                   <ArrowRight className="h-4 w-4" />
-                </a>
-                <a
-                  href="https://docs.varity.so"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                </Link>
+                <Link
+                  href="/help"
                   className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 border border-border bg-transparent text-foreground hover:bg-background-quaternary hover:border-brand-500 h-12 px-8"
                 >
-                  View Documentation
-                </a>
+                  Get Help
+                </Link>
               </div>
             </div>
           </div>

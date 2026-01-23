@@ -42,13 +42,14 @@ interface CategoryStats {
 }
 
 export default function CategoriesPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [apps, setApps] = useState<AppData[]>([]);
   const { getAllApps } = useContract();
 
   // Fetch apps on mount
   useEffect(() => {
     async function fetchApps() {
+      setIsLoading(true);
       try {
         const fetchedApps = await getAllApps(100);
         // Filter to only show approved and active apps
@@ -57,6 +58,8 @@ export default function CategoriesPage() {
       } catch (error) {
         console.error("Error loading apps:", error);
         setApps([]);
+      } finally {
+        setIsLoading(false);
       }
     }
 
