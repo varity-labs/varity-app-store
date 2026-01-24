@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/Badge";
+import { ImageCarousel } from "@/components/ImageCarousel";
 import { ArrowLeft, ExternalLink, Github, Calendar, User, AlertCircle, Twitter, Linkedin, Globe, Shield, Mail, FileText } from "lucide-react";
 import type { AppData } from "@/lib/constants";
 import { DEMO_APPS } from "@/lib/constants";
@@ -296,28 +297,12 @@ export default function AppDetailPage(): React.JSX.Element {
                 </div>
               </section>
 
-              {/* Screenshots Section */}
+              {/* Screenshots Section - Horizontal Carousel */}
               {app.screenshots && app.screenshots.length > 0 && (
                 <section>
                   <h2 className="text-2xl font-bold text-slate-100">Preview</h2>
-                  <div className="mt-6 space-y-4">
-                    {app.screenshots.map((url, index) => (
-                      <div
-                        key={index}
-                        className="relative aspect-video overflow-hidden rounded-2xl bg-slate-800 shadow-lg"
-                      >
-                        <Image
-                          src={url}
-                          alt={`${app.name} screenshot ${index + 1}`}
-                          width={800}
-                          height={450}
-                          className="object-cover w-full h-full"
-                          loading={index === 0 ? "eager" : "lazy"}
-                          sizes="(max-width: 1024px) 100vw, 66vw"
-                          unoptimized
-                        />
-                      </div>
-                    ))}
+                  <div className="mt-6">
+                    <ImageCarousel images={app.screenshots} appName={app.name} />
                   </div>
                 </section>
               )}
