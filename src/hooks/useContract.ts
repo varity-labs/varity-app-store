@@ -8,7 +8,7 @@ import type { AppData } from "@/lib/constants";
 import { handleTransactionError } from "@/lib/transactions";
 
 // Contract address on Varity L3
-const CONTRACT_ADDRESS = "0x3faa42a8639fcb076160d553e8d6e05add7d97a5";
+const CONTRACT_ADDRESS = "0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74";
 
 // Contract ABI for read functions
 const CONTRACT_ABI = [

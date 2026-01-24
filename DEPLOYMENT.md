@@ -19,7 +19,7 @@ git commit -m "Initial commit - Varity App Store MVP
 
 - Next.js 16 frontend with Privy auth
 - Stylus smart contract deployed to Varity L3
-- Contract address: 0x3faa42a8639fcb076160d553e8d6e05add7d97a5
+- Contract address: 0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74
 - UI redesigned to match Varity brand
 - Ready for contract integration"
 
@@ -63,7 +63,7 @@ git push -u origin main
    ```
    NEXT_PUBLIC_PRIVY_APP_ID=cmhwbozxu004fjr0cicfz0tf8
    NEXT_PUBLIC_THIRDWEB_CLIENT_ID=acb17e07e34ab2b8317aa40cbb1b5e1d
-   NEXT_PUBLIC_VARITY_REGISTRY_ADDRESS=0x3faa42a8639fcb076160d553e8d6e05add7d97a5
+   NEXT_PUBLIC_VARITY_REGISTRY_ADDRESS=0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74
    ```
 
 5. **Deploy**
