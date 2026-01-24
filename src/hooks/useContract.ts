@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { getContract, readContract, prepareContractCall, sendTransaction } from "thirdweb";
 import { useActiveAccount } from "thirdweb/react";
 import { thirdwebClient, varityL3 } from "@/lib/thirdweb";
@@ -215,7 +215,8 @@ function parseAppData(
  * Uses thirdweb v5 function-based API
  */
 export function useContract() {
-  const contract = getContractInstance();
+  // Memoize contract instance to prevent infinite re-renders
+  const contract = useMemo(() => getContractInstance(), []);
   const account = useActiveAccount();
 
   // Transaction state

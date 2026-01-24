@@ -38,12 +38,16 @@ export function BrowsePage() {
     });
   }, []);
 
-  // Fetch approved apps from contract on mount
+  // Fetch approved apps from contract on mount (only once)
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchApps() {
       setIsLoading(true);
       try {
         const fetchedApps = await getAllApps(100);
+        if (!isMounted) return;
+
         // Filter to only show approved apps (getAllApps already returns only approved + active)
         const approvedApps = fetchedApps.filter(app => app.isApproved && app.isActive);
 
@@ -54,16 +58,24 @@ export function BrowsePage() {
           setApps(approvedApps);
         }
       } catch (error) {
+        if (!isMounted) return;
         console.error("Error loading apps:", error);
         // Use demo apps as fallback on error
         setApps(DEMO_APPS);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchApps();
-  }, [getAllApps]);
+
+    return () => {
+      isMounted = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only fetch on mount
 
   // Filter apps based on search, category, and chain
   // Use deferredSearchQuery for filtering (low-priority update)
