@@ -1,19 +1,20 @@
 "use client";
 
+import * as React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/Badge";
-import { ArrowLeft, ExternalLink, Github, Calendar, User, AlertCircle, Twitter, Linkedin, Globe } from "lucide-react";
+import { ArrowLeft, ExternalLink, Github, Calendar, User, AlertCircle, Twitter, Linkedin, Globe, Shield, Mail, FileText } from "lucide-react";
 import type { AppData } from "@/lib/constants";
 import { DEMO_APPS } from "@/lib/constants";
 import { formatDate, truncateAddress } from "@/lib/utils";
 import { useContract } from "@/hooks/useContract";
-import { StructuredData, createAppStructuredData, createAppBreadcrumbData } from "@/components/StructuredData";
+import { StructuredData, createAppDetailPageSchema, type AppSchemaData } from "@/components/StructuredData";
 
-// User-friendly network names
-const networkNames: Record<number, string> = {
+// User-friendly platform names
+const platformNames: Record<number, string> = {
   33529: "Varity",
   421614: "Arbitrum Test",
   42161: "Arbitrum",
@@ -23,7 +24,7 @@ const networkNames: Record<number, string> = {
   1: "Ethereum",
 };
 
-export default function AppDetailPage() {
+export default function AppDetailPage(): React.JSX.Element {
   const params = useParams();
   const appId = params.id as string;
   const [app, setApp] = useState<AppData | null>(null);
@@ -116,24 +117,39 @@ export default function AppDetailPage() {
     );
   }
 
-  const networkName = networkNames[Number(app.chainId)] || "Unknown";
+  const platformName = platformNames[Number(app.chainId)] || "Unknown";
 
-  // Create structured data for SEO
-  const appStructuredData = createAppStructuredData({
+  // Extract feature list from description bullet points
+  const featureList = app.description
+    .split("\n")
+    .filter((line) => line.trim().startsWith("•"))
+    .map((line) => line.replace("•", "").trim());
+
+  // Create structured data for SEO with enhanced app schema
+  const appSchemaData: AppSchemaData = {
+    id: appId,
     name: app.name,
     description: app.description,
     appUrl: app.appUrl,
     logoUrl: app.logoUrl || "",
     category: app.category,
     developer: app.developer,
-  });
+    companyName: app.companyName,
+    screenshots: app.screenshots,
+    datePublished: app.createdAt
+      ? new Date(Number(app.createdAt)).toISOString().split("T")[0]
+      : undefined,
+    featureList: featureList.length > 0 ? featureList : undefined,
+    website: app.website,
+    twitter: app.twitter,
+    linkedin: app.linkedin,
+  };
 
-  const breadcrumbData = createAppBreadcrumbData(appId, app.name);
+  const appDetailSchema = createAppDetailPageSchema(appSchemaData, appId);
 
   return (
     <>
-      <StructuredData data={appStructuredData} />
-      <StructuredData data={breadcrumbData} />
+      <StructuredData data={appDetailSchema} id={`app-${appId}-schema`} />
       <div className="min-h-screen bg-slate-950">
         {/* Back link */}
         <div className="border-b border-slate-800/50">
@@ -158,8 +174,11 @@ export default function AppDetailPage() {
                 <Image
                   src={app.logoUrl}
                   alt={`${app.name} application logo`}
-                  fill
-                  className="object-cover"
+                  width={160}
+                  height={160}
+                  className="object-cover w-full h-full"
+                  priority
+                  sizes="(max-width: 640px) 128px, 160px"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-5xl font-bold text-slate-600" aria-hidden="true">
@@ -186,7 +205,7 @@ export default function AppDetailPage() {
               {/* Badges */}
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="default">{app.category}</Badge>
-                <Badge variant="secondary">{networkName}</Badge>
+                <Badge variant="secondary">{platformName}</Badge>
                 {app.builtWithVarity && (
                   <Badge variant="success">Verified by Varity</Badge>
                 )}
@@ -290,8 +309,11 @@ export default function AppDetailPage() {
                         <Image
                           src={url}
                           alt={`${app.name} screenshot ${index + 1}`}
-                          fill
-                          className="object-cover"
+                          width={800}
+                          height={450}
+                          className="object-cover w-full h-full"
+                          loading={index === 0 ? "eager" : "lazy"}
+                          sizes="(max-width: 1024px) 100vw, 66vw"
                           unoptimized
                         />
                       </div>
@@ -408,6 +430,43 @@ export default function AppDetailPage() {
                       </a>
                     </li>
                   )}
+                  {app.privacyPolicyUrl && (
+                    <li>
+                      <a
+                        href={app.privacyPolicyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 text-slate-300 transition-colors hover:text-brand-400"
+                      >
+                        <Shield className="h-5 w-5" />
+                        <span className="text-base">Privacy Policy</span>
+                      </a>
+                    </li>
+                  )}
+                  {app.termsUrl && (
+                    <li>
+                      <a
+                        href={app.termsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 text-slate-300 transition-colors hover:text-brand-400"
+                      >
+                        <FileText className="h-5 w-5" />
+                        <span className="text-base">Terms of Service</span>
+                      </a>
+                    </li>
+                  )}
+                  {app.supportEmail && (
+                    <li>
+                      <a
+                        href={`mailto:${app.supportEmail}`}
+                        className="flex items-center gap-3 text-slate-300 transition-colors hover:text-brand-400"
+                      >
+                        <Mail className="h-5 w-5" />
+                        <span className="text-base">Contact Support</span>
+                      </a>
+                    </li>
+                  )}
                 </ul>
               </div>
             </div>
@@ -418,7 +477,7 @@ export default function AppDetailPage() {
   );
 }
 
-function AppDetailSkeleton() {
+function AppDetailSkeleton(): React.JSX.Element {
   return (
     <div className="min-h-screen bg-slate-950">
       {/* Back link */}

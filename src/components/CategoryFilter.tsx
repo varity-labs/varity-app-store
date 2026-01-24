@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import { APP_CATEGORIES } from "@/lib/constants";
 
@@ -8,8 +9,9 @@ interface CategoryFilterProps {
   onChange: (category: string) => void;
 }
 
-export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
-  const categories = ["All", ...APP_CATEGORIES];
+const categories = ["All", ...APP_CATEGORIES] as const;
+
+function CategoryFilterComponent({ selected, onChange }: CategoryFilterProps): React.JSX.Element {
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -17,6 +19,7 @@ export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
         <button
           key={category}
           onClick={() => onChange(category)}
+          aria-label={`Filter by ${category}`}
           className={cn(
             "rounded-md px-4 py-2 text-sm font-medium transition-all duration-200",
             selected === category
@@ -30,3 +33,5 @@ export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
     </div>
   );
 }
+
+export const CategoryFilter = React.memo(CategoryFilterComponent);

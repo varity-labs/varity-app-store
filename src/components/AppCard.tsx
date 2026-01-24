@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "./Badge";
@@ -10,8 +11,8 @@ interface AppCardProps {
   app: AppData;
 }
 
-// User-friendly network names
-const networkNames: Record<number, string> = {
+// User-friendly platform names
+const platformNames: Record<number, string> = {
   33529: "Varity",
   421614: "Arbitrum Test",
   42161: "Arbitrum",
@@ -21,9 +22,9 @@ const networkNames: Record<number, string> = {
   1: "Ethereum",
 };
 
-export function AppCard({ app }: AppCardProps) {
-  const networkId = Number(app.chainId);
-  const networkName = networkNames[networkId] || "Other";
+function AppCardComponent({ app }: AppCardProps): React.ReactElement {
+  const platformId = Number(app.chainId);
+  const platformName = platformNames[platformId] || "Other";
 
   return (
     <Link
@@ -38,8 +39,11 @@ export function AppCard({ app }: AppCardProps) {
             <Image
               src={app.logoUrl}
               alt={`${app.name} logo`}
-              fill
+              width={56}
+              height={56}
               className="object-cover"
+              loading="lazy"
+              sizes="56px"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-xl font-bold text-brand-400" aria-hidden="true">
@@ -65,7 +69,7 @@ export function AppCard({ app }: AppCardProps) {
       {/* Metadata */}
       <div className="mt-5 flex flex-wrap items-center gap-2">
         <Badge variant="default">{app.category}</Badge>
-        <Badge variant="secondary">{networkName}</Badge>
+        <Badge variant="secondary">{platformName}</Badge>
         {app.builtWithVarity && (
           <Badge variant="success">Verified</Badge>
         )}
@@ -78,3 +82,6 @@ export function AppCard({ app }: AppCardProps) {
     </Link>
   );
 }
+
+// Memoize to prevent unnecessary re-renders when parent updates
+export const AppCard = React.memo(AppCardComponent);

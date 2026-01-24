@@ -1,69 +1,45 @@
 "use client";
 
-import { PrivyProvider } from "@privy-io/react-auth";
+import * as React from "react";
 import { ThirdwebProvider } from "thirdweb/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
 import { ToastProvider } from "@/contexts/ToastContext";
 
-// Get Privy app ID - must be a valid ID or Privy will throw
-const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
+// Create QueryClient outside component to prevent recreation on re-renders
+function makeQueryClient(): QueryClient {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000, // 1 minute
+        gcTime: 5 * 60 * 1000, // 5 minutes (garbage collection time)
+        refetchOnWindowFocus: false, // Disable refetch on window focus for performance
+      },
+    },
+  });
+}
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000, // 1 minute
-          },
-        },
-      })
-  );
+let browserQueryClient: QueryClient | undefined = undefined;
 
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Render children without Privy during SSR or if no valid app ID
-  if (!mounted || !PRIVY_APP_ID) {
-    return (
-      <ThirdwebProvider>
-        <QueryClientProvider client={queryClient}>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </QueryClientProvider>
-      </ThirdwebProvider>
-    );
+function getQueryClient(): QueryClient {
+  if (typeof window === "undefined") {
+    // Server: always make a new query client
+    return makeQueryClient();
   }
+  // Browser: make a new query client if we don't already have one
+  if (!browserQueryClient) {
+    browserQueryClient = makeQueryClient();
+  }
+  return browserQueryClient;
+}
+
+export function Providers({ children }: { children: React.ReactNode }): React.JSX.Element {
+  const queryClient = getQueryClient();
 
   return (
-    <PrivyProvider
-      appId={PRIVY_APP_ID}
-      config={{
-        appearance: {
-          theme: "dark",
-          accentColor: "#14B8A6", // Varity brand teal
-          logo: "/logo/varity-logo-color.svg",
-        },
-        loginMethods: ["email", "wallet", "google", "github"],
-        embeddedWallets: {
-          ethereum: {
-            createOnLogin: "users-without-wallets",
-          },
-        },
-      }}
-    >
-      <ThirdwebProvider>
-        <QueryClientProvider client={queryClient}>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </QueryClientProvider>
-      </ThirdwebProvider>
-    </PrivyProvider>
+    <ThirdwebProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>{children}</ToastProvider>
+      </QueryClientProvider>
+    </ThirdwebProvider>
   );
 }

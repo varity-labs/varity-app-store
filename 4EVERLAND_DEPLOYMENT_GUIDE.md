@@ -422,8 +422,7 @@ varity-app-store/
     │   ├── Badge.tsx
     │   └── Providers.tsx
     ├── hooks/
-    │   ├── useContract.ts
-    │   └── useAuth.ts
+    │   └── useContract.ts
     ├── lib/
     │   ├── constants.ts
     │   ├── utils.ts

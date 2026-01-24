@@ -27,7 +27,7 @@ export const APP_CATEGORIES = [
   "Business Tools",
   "Analytics",
   "Finance",
-  "Developer Tools",
+  "Engineering Tools",
   "Productivity",
   "Infrastructure",
   "Communication",
@@ -84,6 +84,10 @@ export interface AppData {
   website?: string;
   twitter?: string;
   linkedin?: string;
+  // Essential for business trust
+  privacyPolicyUrl?: string;
+  supportEmail?: string;
+  termsUrl?: string;
 }
 
 // Form validation
@@ -119,6 +123,9 @@ export const DEMO_APPS: AppData[] = [
     website: "https://varity-analytics.com",
     twitter: "https://twitter.com/varietyanalytics",
     linkedin: "https://linkedin.com/company/varity-analytics",
+    privacyPolicyUrl: "https://varity-analytics.com/privacy",
+    supportEmail: "support@varity-analytics.com",
+    termsUrl: "https://varity-analytics.com/terms",
   },
   {
     id: BigInt(2),
@@ -144,6 +151,8 @@ export const DEMO_APPS: AppData[] = [
     companyName: "Varity AI Labs",
     website: "https://varity-ai.com",
     twitter: "https://twitter.com/varietyai",
+    privacyPolicyUrl: "https://varity-ai.com/privacy",
+    supportEmail: "help@varity-ai.com",
   },
   {
     id: BigInt(3),
@@ -171,6 +180,9 @@ export const DEMO_APPS: AppData[] = [
     website: "https://varity-finance.com",
     twitter: "https://twitter.com/varietyfinance",
     linkedin: "https://linkedin.com/company/varity-finance",
+    privacyPolicyUrl: "https://varity-finance.com/privacy",
+    supportEmail: "support@varity-finance.com",
+    termsUrl: "https://varity-finance.com/terms",
   },
   {
     id: BigInt(4),
@@ -194,6 +206,8 @@ export const DEMO_APPS: AppData[] = [
     companyName: "Varity Communications Co.",
     website: "https://varity-collab.com",
     linkedin: "https://linkedin.com/company/varity-communications",
+    privacyPolicyUrl: "https://varity-collab.com/privacy",
+    supportEmail: "support@varity-collab.com",
   },
   {
     id: BigInt(5),
@@ -201,7 +215,7 @@ export const DEMO_APPS: AppData[] = [
     description: "Essential tools for developers: code snippets manager, API testing suite, documentation generator, and performance monitoring. Built by developers, for developers.\n\nDeveloper Tools:\n• Code snippet library with syntax highlighting\n• REST API testing and debugging\n• Automated documentation generation\n• Performance profiling and monitoring\n• Git integration and version control",
     appUrl: "https://devtools.varity.so",
     logoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23ef4444'/%3E%3Ctext x='50' y='50' font-size='48' text-anchor='middle' dy='.3em' fill='white' font-family='Arial, sans-serif' font-weight='bold'%3E%3C/%3E%3C/text%3E%3C/svg%3E",
-    category: "Developer Tools",
+    category: "Engineering Tools",
     chainId: BigInt(33529),
     developer: "0x5678901234567890123456789012345678901234" as `0x${string}`,
     isActive: true,
@@ -220,5 +234,8 @@ export const DEMO_APPS: AppData[] = [
     website: "https://varity-devtools.com",
     twitter: "https://twitter.com/varietydevtools",
     linkedin: "https://linkedin.com/company/varity-devtools",
+    privacyPolicyUrl: "https://varity-devtools.com/privacy",
+    supportEmail: "help@varity-devtools.com",
+    termsUrl: "https://varity-devtools.com/terms",
   },
 ];

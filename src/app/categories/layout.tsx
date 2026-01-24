@@ -4,8 +4,8 @@ import { APP_CATEGORIES } from "@/lib/constants";
 const categoryList = APP_CATEGORIES.join(", ");
 
 export const metadata: Metadata = {
-  title: "Browse Apps by Category",
-  description: `Explore applications organized by category on Varity App Store. Categories include: ${categoryList}. Find the perfect tool for your needs.`,
+  title: "Browse App Categories - Find Business Tools by Type",
+  description: `Explore enterprise applications by category. Browse ${categoryList} and more. Find the perfect tool for your business needs today.`,
   keywords: [
     "app categories",
     "browse by category",
@@ -15,25 +15,25 @@ export const metadata: Metadata = {
     "Varity App Store",
   ],
   openGraph: {
-    title: "Browse Apps by Category | Varity App Store",
-    description: `Explore applications organized by category. Find tools in ${categoryList} and more.`,
+    title: "Browse App Categories | Varity App Store",
+    description: `Explore enterprise apps by category: ${categoryList}. Find the perfect business tool.`,
     url: "https://store.varity.so/categories",
     siteName: "Varity App Store",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "Varity App Store - Browse by Category",
+        alt: "Varity App Store - Enterprise Apps for Your Business",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Browse Apps by Category | Varity App Store",
-    description: `Explore applications organized by category. Find the perfect tool for your needs.`,
-    images: ["/og-image.png"],
+    title: "Browse App Categories | Varity App Store",
+    description: `Explore enterprise apps by category. Find the perfect business tool for your needs.`,
+    images: ["/og-image.svg"],
   },
   alternates: {
     canonical: "https://store.varity.so/categories",

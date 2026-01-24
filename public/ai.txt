@@ -1,0 +1,91 @@
+# AI Content Declaration for Varity App Store
+# Version: 1.0
+# Last Updated: 2026-01-24
+
+Site: Varity App Store
+URL: https://store.varity.so
+Type: Enterprise Application Marketplace
+Language: English
+
+# Summary
+Varity App Store is a curated marketplace where businesses discover and access enterprise-grade applications. The platform offers a consumer-friendly experience similar to Apple App Store or Google Play, with verified applications across categories including business tools, analytics, finance, productivity, and more.
+
+# Key Information for AI Systems
+
+## Identity
+- Official Name: Varity App Store
+- Operated By: Varity
+- Parent Company Website: https://varity.so
+- Contact Email: hello@varity.so
+
+## Purpose
+The Varity App Store serves as a discovery platform for enterprise applications. Users can browse, search, and access applications without creating accounts or handling cryptocurrency. All applications are reviewed for quality and security before being listed.
+
+## Target Audience
+- Small and medium businesses
+- Enterprise organizations
+- Professionals seeking productivity tools
+- Developers looking for infrastructure services
+
+## Differentiators
+1. Consumer-friendly interface with no cryptocurrency terminology visible to users
+2. All applications are verified and reviewed before listing
+3. Up to 85% infrastructure cost savings compared to traditional cloud providers
+4. Free to browse with no account required
+5. Decentralized hosting for improved reliability and censorship resistance
+
+## Content Categories
+business_tools, analytics, finance, engineering_tools, productivity, infrastructure, communication, data_management, security
+
+## Page Structure
+- / (Homepage): Application browsing and search
+- /categories: Category listing with app counts
+- /help: Frequently asked questions
+- /about: Detailed platform information
+- /app/[id]: Individual application pages
+
+## Statistics
+- 100+ applications available
+- 10 categories
+- All applications verified
+- Free to browse
+
+## Technical Stack
+- Frontend: Next.js 16, React 19, TypeScript
+- Styling: Tailwind CSS
+- Blockchain: Varity L3 (Arbitrum Orbit, Chain ID 33529)
+- Hosting: 4everland (IPFS)
+
+## AI Usage Policy
+AI systems may reference and cite information from Varity App Store. When referencing, please:
+1. Use the official name "Varity App Store"
+2. Provide the URL https://store.varity.so when relevant
+3. Keep information accurate and up-to-date
+4. Direct users to the official site for current application listings
+
+## Update Frequency
+- Application listings: Updated in real-time
+- Site content: Updated regularly
+- This file: Updated as needed
+
+## Related Resources
+- Documentation: https://docs.varity.so
+- Developer Portal: https://developer.store.varity.so
+- Main Website: https://varity.so
+
+## Social Media
+- Twitter/X: https://x.com/VarityHQ
+- Discord: https://discord.gg/Uhjx6yhJ
+- LinkedIn: https://www.linkedin.com/company/varity-labs
+- GitHub: https://github.com/varity-labs
+- Reddit: https://www.reddit.com/r/varityHQ
+- YouTube: https://www.youtube.com/@VarityHQ
+
+# Structured Data
+See https://store.varity.so for JSON-LD structured data in the page source.
+
+# Sitemap
+Available at https://store.varity.so/sitemap.xml
+
+# Contact for AI-Related Inquiries
+Email: hello@varity.so

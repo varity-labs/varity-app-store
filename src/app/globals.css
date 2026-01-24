@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
 /* ========================================
+   CRITICAL CSS - Above the fold styles
+   Inlined first for faster initial render
+   ======================================== */
+
+/* Prevent FOUC (Flash of Unstyled Content) */
+html {
+  background-color: #030712;
+}
+
+/* ========================================
    VARITY BRAND TOKENS - CSS VARIABLES
    ======================================== */
 
@@ -490,4 +500,16 @@ button, a, input[type="checkbox"], input[type="radio"], select {
   letter-spacing: 0.1em;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+/* ========================================
+   ACCESSIBILITY - REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

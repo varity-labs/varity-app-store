@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { SUPPORTED_CHAINS } from "@/lib/constants";
 
@@ -8,8 +9,8 @@ interface ChainFilterProps {
   onChange: (chainId: number | null) => void;
 }
 
-// User-friendly network names
-const networkDisplayNames: Record<number, string> = {
+// User-friendly platform names
+const platformDisplayNames: Record<number, string> = {
   33529: "Varity",
   421614: "Arbitrum Test",
   42161: "Arbitrum",
@@ -19,7 +20,7 @@ const networkDisplayNames: Record<number, string> = {
   1: "Ethereum",
 };
 
-export function ChainFilter({ selected, onChange }: ChainFilterProps) {
+function ChainFilterComponent({ selected, onChange }: ChainFilterProps): React.JSX.Element {
   return (
     <div className="relative">
       <select
@@ -27,12 +28,13 @@ export function ChainFilter({ selected, onChange }: ChainFilterProps) {
         onChange={(e) =>
           onChange(e.target.value === "all" ? null : Number(e.target.value))
         }
+        aria-label="Filter by platform"
         className="appearance-none rounded-lg border border-border bg-background-secondary px-4 py-2 pr-10 text-sm font-medium text-foreground transition-all duration-200 hover:border-border-muted focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
       >
-        <option value="all">All Networks</option>
+        <option value="all">All Platforms</option>
         {SUPPORTED_CHAINS.map((chain) => (
           <option key={chain.id} value={chain.id}>
-            {networkDisplayNames[chain.id] || chain.name}
+            {platformDisplayNames[chain.id] || chain.name}
           </option>
         ))}
       </select>
@@ -40,3 +42,5 @@ export function ChainFilter({ selected, onChange }: ChainFilterProps) {
     </div>
   );
 }
+
+export const ChainFilter = React.memo(ChainFilterComponent);

@@ -67,7 +67,7 @@ export function handleTransactionError(error: unknown): string {
     errorMessage.includes("User denied") ||
     errorMessage.includes("rejected")
   ) {
-    return "Transaction was canceled. Please try again and approve the transaction in your wallet.";
+    return "Transaction was canceled. Please try again and approve the transaction.";
   }
 
   // Insufficient funds
@@ -75,7 +75,7 @@ export function handleTransactionError(error: unknown): string {
     errorMessage.includes("insufficient funds") ||
     errorMessage.includes("insufficient balance")
   ) {
-    return "Insufficient funds to complete this transaction. Please ensure you have enough USDC in your wallet.";
+    return "Insufficient funds to complete this transaction. Please ensure you have enough USDC in your account.";
   }
 
   // Network errors
@@ -84,7 +84,7 @@ export function handleTransactionError(error: unknown): string {
     errorMessage.includes("connection") ||
     errorMessage.includes("timeout")
   ) {
-    return "Network error. Please check your connection and try again.";
+    return "Connection error. Please check your internet connection and try again.";
   }
 
   // Wrong network
@@ -92,7 +92,7 @@ export function handleTransactionError(error: unknown): string {
     errorMessage.includes("chain") ||
     errorMessage.includes("network mismatch")
   ) {
-    return "Please switch to Varity L3 network (Chain ID: 33529).";
+    return "Please switch to the Varity platform to continue.";
   }
 
   // Contract errors

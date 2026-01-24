@@ -4,13 +4,20 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { StructuredData, homePageStructuredData } from "@/components/StructuredData";
+import { StructuredData, organizationSchema, websiteSchema } from "@/components/StructuredData";
+
+// Global structured data for organization and website (referenced by all pages)
+const globalStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [websiteSchema, organizationSchema],
+};
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
   themeColor: "#030712",
+  colorScheme: "dark",
 };
 
 export const metadata: Metadata = {
@@ -20,10 +27,12 @@ export const metadata: Metadata = {
     template: "%s | Varity App Store",
   },
   description:
-    "Discover quality applications for your business and personal needs. Browse our curated collection of tools and services.",
+    "Varity App Store is a curated marketplace of verified enterprise applications for businesses. Discover business tools, analytics, finance, productivity, and communication apps. Free to browse with up to 85% infrastructure cost savings.",
   keywords: [
-    "app store",
-    "applications",
+    "Varity App Store",
+    "enterprise applications",
+    "business software marketplace",
+    "verified apps",
     "business tools",
     "productivity apps",
     "enterprise software",
@@ -34,6 +43,7 @@ export const metadata: Metadata = {
     "business solutions",
     "application marketplace",
     "software catalog",
+    "curated apps",
   ],
   authors: [{ name: "Varity" }],
   creator: "Varity",
@@ -54,24 +64,24 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://store.varity.so",
     siteName: "Varity App Store",
-    title: "Varity App Store - Discover Quality Applications",
+    title: "Varity App Store - Curated Enterprise Application Marketplace",
     description:
-      "Discover quality applications for your business and personal needs. Browse our curated collection of tools and services.",
+      "Varity App Store is a curated marketplace of verified enterprise applications for businesses. Browse business tools, analytics, finance, and productivity apps for free. Up to 85% infrastructure cost savings.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "Varity App Store - Quality Applications Marketplace",
+        alt: "Varity App Store - Enterprise Apps for Your Business",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Varity App Store - Discover Quality Applications",
+    title: "Varity App Store - Curated Enterprise Application Marketplace",
     description:
-      "Discover quality applications for your business and personal needs. Browse our curated collection of tools and services.",
-    images: ["/og-image.png"],
+      "Varity App Store is a curated marketplace of verified enterprise applications. Browse business tools, analytics, and productivity apps for free.",
+    images: ["/og-image.svg"],
     creator: "@VarityHQ",
     site: "@VarityHQ",
   },
@@ -88,6 +98,13 @@ export const metadata: Metadata = {
     // Add actual verification codes when available
   },
   category: "technology",
+  // AI and LLM discoverability meta tags
+  other: {
+    "ai-content-declaration": "factual-informational",
+    "ai-generated": "false",
+    "llms-txt": "https://store.varity.so/llms.txt",
+    "ai-txt": "https://store.varity.so/ai.txt",
+  },
 };
 
 export default function RootLayout({
@@ -98,7 +115,30 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
-        <StructuredData data={homePageStructuredData} />
+        {/* DNS Prefetch for external resources */}
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://rpc-varity-testnet-rroe52pwjp.t.conduit.xyz" />
+
+        {/* Preconnect to critical third-party origins */}
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+
+        {/* Preload critical fonts */}
+        <link
+          rel="preload"
+          href="/fonts/Satoshi-Regular.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/CabinetGrotesk-Bold.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+
+        <StructuredData data={globalStructuredData} id="global-schema" />
       </head>
       <body className={`${fontClasses} antialiased min-h-screen bg-background text-foreground`}>
         <Providers>

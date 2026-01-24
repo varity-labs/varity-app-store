@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import { DEMO_APPS } from "@/lib/constants";
 
 export const dynamic = "force-static";
 
@@ -6,13 +7,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://store.varity.so";
   const currentDate = new Date().toISOString();
 
-  // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: currentDate,
       changeFrequency: "daily",
       priority: 1,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: currentDate,
+      changeFrequency: "monthly",
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/categories`,
@@ -40,13 +46,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Generate app detail pages for first 100 apps
-  // These are pre-generated static pages that load data client-side
-  const appPages: MetadataRoute.Sitemap = Array.from({ length: 100 }, (_, i) => ({
-    url: `${baseUrl}/app/${i + 1}`,
-    lastModified: currentDate,
+  const appPages: MetadataRoute.Sitemap = DEMO_APPS.map((app) => ({
+    url: `${baseUrl}/app/${app.id.toString()}`,
+    lastModified: new Date(Number(app.createdAt)).toISOString(),
     changeFrequency: "weekly" as const,
-    priority: 0.6,
+    priority: 0.8,
   }));
 
   return [...staticPages, ...appPages];

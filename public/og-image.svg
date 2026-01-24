@@ -1,0 +1,98 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#030712"/>
+      <stop offset="100%" stop-color="#042f2e"/>
+    </linearGradient>
+
+    <!-- Crystal facet gradients (from favicon) -->
+    <linearGradient id="facet1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5EEAD4"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="facet2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="facet4" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+
+    <!-- Glow effect -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle grid pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg-gradient)"/>
+
+  <!-- Subtle grid overlay -->
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.4"/>
+
+  <!-- Decorative circles in background -->
+  <circle cx="100" cy="500" r="200" fill="#14b8a6" opacity="0.03"/>
+  <circle cx="1100" cy="130" r="250" fill="#14b8a6" opacity="0.03"/>
+
+  <!-- Logo crystal (scaled from favicon) - positioned left of title -->
+  <g transform="translate(380, 190) scale(2.2)">
+    <!-- Top facet -->
+    <path d="M32 6 L48 22 L32 32 L16 22 Z" fill="url(#facet4)"/>
+    <!-- Left facet -->
+    <path d="M16 22 L32 32 L32 58 L8 36 Z" fill="url(#facet1)"/>
+    <!-- Right facet -->
+    <path d="M48 22 L56 36 L32 58 L32 32 Z" fill="url(#facet2)"/>
+    <!-- Bottom left -->
+    <path d="M8 36 L32 58 L20 58 Z" fill="url(#facet1)" opacity="0.7"/>
+    <!-- Bottom right -->
+    <path d="M56 36 L44 58 L32 58 Z" fill="url(#facet2)" opacity="0.7"/>
+    <!-- Highlight -->
+    <path d="M32 12 L40 22 L32 28 L24 22 Z" fill="white" opacity="0.25"/>
+  </g>
+
+  <!-- Main title: "Varity App Store" -->
+  <text x="600" y="380"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        font-size="72"
+        font-weight="700"
+        fill="#14b8a6"
+        text-anchor="middle"
+        filter="url(#glow)">
+    Varity App Store
+  </text>
+
+  <!-- Tagline: "Enterprise Apps for Your Business" -->
+  <text x="600" y="440"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        font-size="32"
+        font-weight="400"
+        fill="#94a3b8"
+        text-anchor="middle">
+    Enterprise Apps for Your Business
+  </text>
+
+  <!-- Accent line below tagline -->
+  <rect x="450" y="470" width="300" height="3" rx="1.5" fill="#14b8a6" opacity="0.6"/>
+
+  <!-- URL at bottom -->
+  <text x="600" y="570"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        font-size="24"
+        font-weight="400"
+        fill="#64748b"
+        text-anchor="middle">
+    store.varity.so
+  </text>
+</svg>

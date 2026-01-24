@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { AppCard } from "./AppCard";
 import { Search } from "lucide-react";
 import type { AppData } from "@/lib/constants";
@@ -9,7 +10,7 @@ interface AppGridProps {
   isLoading?: boolean;
 }
 
-export function AppGrid({ apps, isLoading }: AppGridProps) {
+export function AppGrid({ apps, isLoading }: AppGridProps): React.JSX.Element {
   if (isLoading) {
     return (
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -36,7 +37,7 @@ export function AppGrid({ apps, isLoading }: AppGridProps) {
           onClick={() => window.location.reload()}
           className="mt-8 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background-tertiary px-6 h-11 text-sm font-medium text-foreground transition-all hover:bg-background-quaternary hover:border-brand-500"
         >
-          Clear filters and refresh
+          Show All Applications
         </button>
       </div>
     );
@@ -51,11 +52,15 @@ export function AppGrid({ apps, isLoading }: AppGridProps) {
   );
 }
 
-function AppCardSkeleton() {
+function AppCardSkeleton(): React.JSX.Element {
   return (
-    <div className="card flex flex-col">
+    <div className="card flex flex-col" style={{ minHeight: '160px' }}>
       <div className="flex items-start gap-4">
-        <div className="h-14 w-14 rounded-xl skeleton-shimmer" />
+        <div
+          className="h-14 w-14 flex-shrink-0 rounded-xl skeleton-shimmer"
+          style={{ aspectRatio: '1/1' }}
+          aria-hidden="true"
+        />
         <div className="flex-1 space-y-2">
           <div className="h-5 w-3/4 rounded skeleton-shimmer" />
           <div className="h-4 w-full rounded skeleton-shimmer" />

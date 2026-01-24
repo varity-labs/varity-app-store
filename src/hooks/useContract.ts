@@ -458,7 +458,7 @@ export function useContract() {
       screenshots: string[];
     }) => {
       if (!account) {
-        throw new Error("Wallet not connected");
+        throw new Error("Please sign in to continue");
       }
 
       setIsLoading(true);
@@ -510,7 +510,7 @@ export function useContract() {
   const approveApp = useCallback(
     async (appId: bigint) => {
       if (!account) {
-        throw new Error("Wallet not connected");
+        throw new Error("Please sign in to continue");
       }
 
       setIsLoading(true);
@@ -551,7 +551,7 @@ export function useContract() {
   const rejectApp = useCallback(
     async (appId: bigint, reason: string) => {
       if (!account) {
-        throw new Error("Wallet not connected");
+        throw new Error("Please sign in to continue");
       }
 
       setIsLoading(true);
@@ -599,7 +599,7 @@ export function useContract() {
       screenshots: string[]
     ) => {
       if (!account) {
-        throw new Error("Wallet not connected");
+        throw new Error("Please sign in to continue");
       }
 
       setIsLoading(true);
@@ -639,7 +639,7 @@ export function useContract() {
   const deactivateApp = useCallback(
     async (appId: bigint) => {
       if (!account) {
-        throw new Error("Wallet not connected");
+        throw new Error("Please sign in to continue");
       }
 
       setIsLoading(true);
@@ -679,7 +679,7 @@ export function useContract() {
   const featureApp = useCallback(
     async (appId: bigint) => {
       if (!account) {
-        throw new Error("Wallet not connected");
+        throw new Error("Please sign in to continue");
       }
 
       setIsLoading(true);
@@ -726,7 +726,7 @@ export function useContract() {
    */
   const initialize = useCallback(async () => {
     if (!account) {
-      throw new Error("Wallet not connected");
+      throw new Error("Please sign in to continue");
     }
 
     setIsLoading(true);

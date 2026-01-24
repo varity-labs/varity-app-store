@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import * as React from "react";
+import { useState, useCallback, memo } from "react";
 import { ChevronDown, ChevronUp, HelpCircle, Search, Grid3x3, ExternalLink, Mail } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { StructuredData, createHelpPageSchema, helpPageFAQData } from "@/components/StructuredData";
 
 interface FAQItem {
   question: string;
@@ -52,7 +54,7 @@ const faqSections: FAQSection[] = [
               <li>Use the search bar on the homepage to search by name or description</li>
               <li>Browse by category using the category filters</li>
               <li>Visit the <Link href="/categories" className="text-brand-400 hover:text-brand-300 transition-colors">Categories page</Link> to see all available categories</li>
-              <li>Filter by network using the chain filter dropdown</li>
+              <li>Filter by platform using the platform filter dropdown</li>
             </ul>
           </>
         ),
@@ -99,8 +101,8 @@ const faqSections: FAQSection[] = [
         answer: "Many applications in our store are open source. If an application has a 'View Source' button on its detail page, you can click it to view the source code on GitHub.",
       },
       {
-        question: "What networks are supported?",
-        answer: "Applications in our store support multiple networks including Varity Network, Arbitrum, Ethereum, Polygon, Optimism, and Base. You can filter applications by network using the chain filter on the browse page.",
+        question: "What platforms are supported?",
+        answer: "Applications in our store run on multiple platforms including Varity, Arbitrum, Ethereum, Polygon, Optimism, and Base. You can filter applications by platform using the platform filter on the browse page.",
       },
     ],
   },
@@ -146,14 +148,18 @@ const faqSections: FAQSection[] = [
       },
       {
         question: "Can I update my app after it's approved?",
-        answer: "Yes, developers can update their application's description, URL, and screenshots at any time. Simply connect with the same wallet you used to submit the app and access your developer dashboard.",
+        answer: "Yes, developers can update their application's description, URL, and screenshots at any time. Simply sign in with the same account you used to submit the app and access your developer dashboard.",
       },
     ],
   },
 ];
 
-function FAQAccordion({ section }: { section: FAQSection }) {
+function FAQAccordionComponent({ section }: { section: FAQSection }): React.JSX.Element {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const handleToggle = useCallback((index: number) => {
+    setOpenIndex(prev => prev === index ? null : index);
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -174,17 +180,17 @@ function FAQAccordion({ section }: { section: FAQSection }) {
               className="card overflow-hidden transition-all duration-200"
             >
               <button
-                onClick={() => setOpenIndex(isOpen ? null : index)}
+                onClick={() => handleToggle(index)}
                 className="w-full flex items-center justify-between p-5 text-left hover:bg-background-secondary transition-colors"
                 aria-expanded={isOpen}
               >
-                <span className="text-body-md font-medium text-foreground pr-4">
+                <h3 className="text-body-md font-medium text-foreground pr-4">
                   {item.question}
-                </span>
+                </h3>
                 {isOpen ? (
-                  <ChevronUp className="h-5 w-5 text-brand-400 flex-shrink-0" />
+                  <ChevronUp className="h-5 w-5 text-brand-400 flex-shrink-0" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-foreground-muted flex-shrink-0" />
+                  <ChevronDown className="h-5 w-5 text-foreground-muted flex-shrink-0" aria-hidden="true" />
                 )}
               </button>
 
@@ -203,9 +209,17 @@ function FAQAccordion({ section }: { section: FAQSection }) {
   );
 }
 
-export default function HelpPage() {
+const FAQAccordion = memo(FAQAccordionComponent);
+
+export default function HelpPage(): React.JSX.Element {
+  const helpPageSchema = createHelpPageSchema(helpPageFAQData);
+
   return (
-    <div className="min-h-screen">
+    <>
+      {/* Help page schema with FAQ and breadcrumb for Google Rich Snippets */}
+      <StructuredData data={helpPageSchema} id="help-page-schema" />
+
+      <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-border">
         {/* Background gradient */}
@@ -276,5 +290,6 @@ export default function HelpPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

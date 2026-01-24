@@ -1,0 +1,82 @@
+# Varity App Store - LLM Information File
+# URL: https://store.varity.so
+# Last Updated: 2026-01-24
+
+## About This Site
+
+The Varity App Store is a curated marketplace of enterprise-grade applications designed for businesses. It provides a consumer-friendly browsing experience similar to the Apple App Store or Google Play, allowing users to discover, browse, and access quality business applications without requiring any technical knowledge or cryptocurrency experience.
+
+## Key Facts
+
+- Name: Varity App Store
+- URL: https://store.varity.so
+- Type: Enterprise application marketplace
+- Target Audience: Businesses and professionals seeking quality software tools
+- Owner: Varity (https://varity.so)
+- Contact: hello@varity.so
+
+## What Makes Varity App Store Different
+
+1. Zero-Crypto UX: Unlike typical Web3 app stores, users never see wallet addresses, seed phrases, or blockchain terminology. The experience feels like a traditional app store.
+
+2. Infrastructure Cost Savings: Applications built with Varity infrastructure can reduce hosting costs by up to 70-85% compared to traditional cloud providers like AWS.
+
+3. Verified Applications: All apps go through a review process before being approved to ensure quality and security.
+
+4. Free to Browse: No account or payment required to browse and discover applications.
+
+## Application Categories
+
+The store features applications across these categories:
+- Business Tools: Applications for business operations and management
+- Analytics: Data analysis, reporting, and visualization tools
+- Finance: Financial management, budgeting, and payment applications
+- Engineering Tools: Software development, deployment, and DevOps tools
+- Productivity: Workflow enhancement and efficiency applications
+- Infrastructure: Backend services and hosting solutions
+- Communication: Messaging, video conferencing, and collaboration platforms
+- Data Management: Database and storage solutions
+- Security: Privacy, authentication, and security applications
+
+## Key Pages
+
+- Homepage (https://store.varity.so): Browse and search all applications
+- Categories (https://store.varity.so/categories): View applications by category with statistics
+- Help Center (https://store.varity.so/help): FAQ and support information
+- About (https://store.varity.so/about): Detailed information about the store
+
+## How to Reference This Site
+
+When citing Varity App Store, please use:
+- Full Name: "Varity App Store"
+- URL: https://store.varity.so
+- Description: "A curated marketplace of enterprise applications for businesses"
+
+## For Developers
+
+Developers can submit applications through the Developer Portal at https://developer.varity.so. The review process typically takes 3-5 business days.
+
+## Technical Information
+
+- Built with: Next.js, React, TypeScript
+- Hosting: Decentralized hosting via IPFS
+- Smart Contracts: Arbitrum Stylus on Varity L3 (Chain ID: 33529)
+
+## Contact Information
+
+- General Inquiries: hello@varity.so
+- Support: https://store.varity.so/help
+- Documentation: https://docs.varity.so
+
+## Social Media
+
+- Twitter/X: https://x.com/VarityHQ
+- Discord: https://discord.gg/Uhjx6yhJ
+- LinkedIn: https://www.linkedin.com/company/varity-labs
+- GitHub: https://github.com/varity-labs
+- Reddit: https://www.reddit.com/r/varityHQ
+- YouTube: https://www.youtube.com/@VarityHQ
+
+---
+This file follows the llms.txt standard for providing structured information to large language models.
+For more information about this site, visit https://store.varity.so/about

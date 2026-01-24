@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import * as React from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { APP_CATEGORIES } from "@/lib/constants";
 import type { AppData } from "@/lib/constants";
 import { useContract } from "@/hooks/useContract";
@@ -20,6 +21,11 @@ import {
   Package,
   type LucideIcon
 } from "lucide-react";
+import {
+  StructuredData,
+  createCategoriesPageSchema,
+  type CategoryItem,
+} from "@/components/StructuredData";
 
 // Category icons mapping - professional Lucide React icons
 const categoryIcons: Record<string, LucideIcon> = {
@@ -41,7 +47,7 @@ interface CategoryStats {
   icon: LucideIcon;
 }
 
-export default function CategoriesPage() {
+export default function CategoriesPage(): React.JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [apps, setApps] = useState<AppData[]>([]);
   const { getAllApps } = useContract();
@@ -83,8 +89,24 @@ export default function CategoriesPage() {
 
   const totalApps = apps.length;
 
+  // Create category items for schema
+  const schemaCategories: CategoryItem[] = useMemo(() => {
+    return categoryStats.map((stat) => ({
+      name: stat.category,
+      appCount: stat.count,
+      description: `Browse ${stat.count} ${stat.category.toLowerCase()} applications`,
+    }));
+  }, [categoryStats]);
+
+  const categoriesSchema = useMemo(
+    () => createCategoriesPageSchema(schemaCategories),
+    [schemaCategories]
+  );
+
   return (
-    <div className="min-h-screen">
+    <>
+      <StructuredData data={categoriesSchema} id="categories-page-schema" />
+      <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-border">
         {/* Background gradient */}
@@ -193,10 +215,11 @@ export default function CategoriesPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }
 
-function CategoriesGridSkeleton() {
+function CategoriesGridSkeleton(): React.JSX.Element {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 9 }).map((_, index) => (
