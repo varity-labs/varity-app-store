@@ -69,7 +69,7 @@ export const metadata: Metadata = {
       "Varity App Store is a curated marketplace of verified enterprise applications for businesses. Browse business tools, analytics, finance, and productivity apps for free. Up to 85% infrastructure cost savings.",
     images: [
       {
-        url: "/og-image.svg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Varity App Store - Enterprise Apps for Your Business",
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     title: "Varity App Store - Curated Enterprise Application Marketplace",
     description:
       "Varity App Store is a curated marketplace of verified enterprise applications. Browse business tools, analytics, and productivity apps for free.",
-    images: ["/og-image.svg"],
+    images: ["/og-image.png"],
     creator: "@VarityHQ",
     site: "@VarityHQ",
   },
@@ -93,10 +93,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
     apple: "/logo/varity-logo-color.svg",
   },
-  verification: {
-    google: "google-site-verification-code-here",
-    // Add actual verification codes when available
-  },
+  // verification: {
+  //   google: "YOUR_GOOGLE_VERIFICATION_CODE",
+  // },
   category: "technology",
   // AI and LLM discoverability meta tags
   other: {

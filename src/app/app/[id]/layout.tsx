@@ -68,7 +68,7 @@ export async function generateMetadata({
       siteName: "Varity App Store",
       images: [
         {
-          url: "/og-image.svg",
+          url: "/og-image.png",
           width: 1200,
           height: 630,
           alt: `${appName} on Varity App Store`,
@@ -80,7 +80,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: ["/og-image.svg"],
+      images: ["/og-image.png"],
     },
     alternates: {
       canonical: `https://store.varity.so/app/${appId}`,

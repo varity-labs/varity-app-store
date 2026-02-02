@@ -112,7 +112,7 @@ export const collectionPageSchema = {
   },
   primaryImageOfPage: {
     "@type": "ImageObject",
-    url: `${BASE_URL}/og-image.svg`,
+    url: `${BASE_URL}/og-image.png`,
     width: 1200,
     height: 630,
   },
@@ -176,7 +176,7 @@ export function createAppStructuredData(app: AppSchemaData): Record<string, unkn
     name: app.name,
     description: app.description,
     url: app.appUrl,
-    image: app.logoUrl || `${BASE_URL}/og-image.svg`,
+    image: app.logoUrl || `${BASE_URL}/og-image.png`,
     applicationCategory: schemaCategory,
     applicationSubCategory: app.category,
     operatingSystem: app.operatingSystem || "Web Browser",
@@ -402,7 +402,7 @@ export function createAppItemListSchema(
         name: app.name,
         description: app.description.substring(0, 160) + (app.description.length > 160 ? "..." : ""),
         url: `${BASE_URL}/app/${app.id}`,
-        image: app.logoUrl || `${BASE_URL}/og-image.svg`,
+        image: app.logoUrl || `${BASE_URL}/og-image.png`,
         applicationCategory: app.category,
       },
     })),
@@ -553,7 +553,7 @@ export function createAppDetailPageSchema(
     },
     primaryImageOfPage: {
       "@type": "ImageObject",
-      url: app.logoUrl || `${BASE_URL}/og-image.svg`,
+      url: app.logoUrl || `${BASE_URL}/og-image.png`,
     },
     mainEntity: {
       "@id": `${BASE_URL}/app/${appId}/#software`,

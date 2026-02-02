@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     siteName: "Varity App Store",
     images: [
       {
-        url: "/og-image.svg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Varity App Store - Enterprise Apps for Your Business",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Help Center & FAQ | Varity App Store",
     description: "Get answers to FAQs about browsing apps and using the Varity App Store.",
-    images: ["/og-image.svg"],
+    images: ["/og-image.png"],
   },
   alternates: {
     canonical: "https://store.varity.so/help",

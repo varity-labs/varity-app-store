@@ -32,12 +32,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
-    {
-      url: `${baseUrl}/submit`,
-      lastModified: currentDate,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
   ];
 
   const appPages: MetadataRoute.Sitemap = DEMO_APPS.map((app) => ({
