@@ -38,12 +38,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
-    {
-      url: `${baseUrl}/dashboard`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.5,
-    },
   ];
 
   const appPages: MetadataRoute.Sitemap = DEMO_APPS.map((app) => ({
