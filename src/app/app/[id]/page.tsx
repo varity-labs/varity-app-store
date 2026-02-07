@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/Badge";
 import { ImageCarousel } from "@/components/ImageCarousel";
+import { PurchaseButton } from "@/components/PurchaseButton";
 import { ArrowLeft, ExternalLink, Github, Calendar, User, AlertCircle, Twitter, Linkedin, Globe, Shield, Mail, FileText } from "lucide-react";
 import type { AppData } from "@/lib/constants";
 import { DEMO_APPS } from "@/lib/constants";
@@ -254,8 +255,12 @@ export default function AppDetailPage(): React.JSX.Element {
                 </div>
               )}
 
-              {/* Primary CTA - Large Open Application Button */}
-              <div className="pt-2">
+              {/* Primary CTA - Purchase Button + Open Application Button */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                {/* Purchase Button (only shows if app has pricing) */}
+                <PurchaseButton appId={BigInt(appId)} className="px-8 py-4 text-lg" />
+
+                {/* Open Application Button */}
                 <a
                   href={app.appUrl}
                   target="_blank"
@@ -266,12 +271,14 @@ export default function AppDetailPage(): React.JSX.Element {
                   <ExternalLink className="h-5 w-5" aria-hidden="true" />
                   Open Application
                 </a>
+
+                {/* Source Code Button */}
                 {app.githubUrl && (
                   <a
                     href={app.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="ml-3 inline-flex items-center gap-2 rounded-xl border border-slate-700 px-6 py-4 text-base font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800/50"
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-6 py-4 text-base font-medium text-slate-300 transition-all hover:border-slate-600 hover:bg-slate-800/50"
                     aria-label={`View ${app.name} source code on GitHub`}
                   >
                     <Github className="h-5 w-5" aria-hidden="true" />
