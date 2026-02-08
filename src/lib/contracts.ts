@@ -1,10 +1,12 @@
 // Smart contract configuration for Varity App Registry
 import { getContract } from "thirdweb";
-import { thirdwebClient, varityL3 } from "./thirdweb";
+import { thirdwebClient, varityL3, arbitrumOne } from "./thirdweb";
 
 // Contract addresses
 export const VARITY_APP_REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_VARITY_REGISTRY_ADDRESS as `0x${string}` || "0x0000000000000000000000000000000000000000";
-export const VARITY_PAYMENTS_ADDRESS = "0x0568cf3b5b9c94542aa8d32eb51ffa38912fc48c" as `0x${string}`;
+// Payments contract — Arbitrum One (mainnet, real USDC)
+// Set NEXT_PUBLIC_VARITY_PAYMENTS_ADDRESS env var after deploying to Arb One
+export const VARITY_PAYMENTS_ADDRESS = (process.env.NEXT_PUBLIC_VARITY_PAYMENTS_ADDRESS || "0x0568cf3b5b9c94542aa8d32eb51ffa38912fc48c") as `0x${string}`;
 
 // Get the VarityAppRegistry contract instance
 export function getRegistryContract() {
@@ -216,11 +218,12 @@ export const REGISTRY_ABI = [
   },
 ] as const;
 
-// Get the VarityPayments contract instance
+// Get the VarityPayments contract instance on Arbitrum One (mainnet)
+// NOTE: Payments are on Arb One (real USDC). App registry stays on Varity L3.
 export function getPaymentsContract() {
   return getContract({
     client: thirdwebClient,
-    chain: varityL3,
+    chain: arbitrumOne,
     address: VARITY_PAYMENTS_ADDRESS,
   });
 }
@@ -273,11 +276,20 @@ export const PAYMENTS_ABI = [
     inputs: [],
     outputs: [{ name: "", type: "uint64" }],
   },
+  {
+    name: "getUsdcAddress",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+  },
   // Write functions (camelCase - Stylus SDK conversion)
+  // NOTE: All payment functions are nonpayable — they use ERC-20 USDC transferFrom
+  // Users must approve() USDC spending before calling purchaseApp/payBill
   {
     name: "purchaseApp",
     type: "function",
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     inputs: [{ name: "appId", type: "uint64" }],
     outputs: [],
   },
@@ -296,10 +308,11 @@ export const PAYMENTS_ABI = [
   {
     name: "payBill",
     type: "function",
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     inputs: [
       { name: "appId", type: "uint64" },
       { name: "periodHash", type: "uint64" },
+      { name: "amount", type: "uint64" },
     ],
     outputs: [],
   },

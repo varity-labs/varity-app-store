@@ -25,11 +25,18 @@ export const varityL3 = defineChain({
   testnet: true,
 });
 
+// Arbitrum One — used for payments (mainnet, real USDC)
+export const arbitrumOne = defineChain({
+  id: 42161,
+  name: "Arbitrum One",
+  rpc: "https://arb1.arbitrum.io/rpc",
+});
+
 // Supported chains for app deployment
 export const supportedChains = [
   varityL3,
   defineChain({ id: 421614, name: "Arbitrum Sepolia", rpc: "https://sepolia-rollup.arbitrum.io/rpc", testnet: true }),
-  defineChain({ id: 42161, name: "Arbitrum One", rpc: "https://arb1.arbitrum.io/rpc" }),
+  arbitrumOne,
   defineChain({ id: 8453, name: "Base", rpc: "https://mainnet.base.org" }),
   defineChain({ id: 137, name: "Polygon", rpc: "https://polygon-rpc.com" }),
   defineChain({ id: 10, name: "Optimism", rpc: "https://mainnet.optimism.io" }),

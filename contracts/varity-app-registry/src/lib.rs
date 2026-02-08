@@ -13,7 +13,7 @@ use stylus_sdk::{
 // ============================================================================
 
 sol! {
-    event AppRegistered(uint256 indexed app_id, address indexed developer, string name, string app_type);
+    event AppRegistered(uint256 indexed app_id, address indexed developer, string name, string app_type, string tier);
     event AppApproved(uint256 indexed app_id, address indexed approver);
     event AppRejected(uint256 indexed app_id, address indexed approver);
     event AdminAdded(address indexed admin);
@@ -23,6 +23,7 @@ sol! {
     error InvalidInput();
     error AppNotFound();
     error AlreadyApproved();
+    error InvalidTier();
 }
 
 #[derive(SolidityError)]
@@ -31,6 +32,7 @@ pub enum RegistryError {
     InvalidInput(InvalidInput),
     AppNotFound(AppNotFound),
     AlreadyApproved(AlreadyApproved),
+    InvalidTier(InvalidTier),
 }
 
 // ============================================================================
@@ -60,6 +62,7 @@ sol_storage! {
         mapping(uint256 => string) app_repos;
         mapping(uint256 => uint256) app_prices;
         mapping(uint256 => bool) app_is_approved;
+        mapping(uint256 => string) app_tiers; // Infrastructure tier: "free", "starter", "growth", "enterprise"
 
         // List of pending app IDs awaiting approval
         uint256[] pending_apps;
@@ -95,6 +98,7 @@ impl VarityAppRegistry {
         demo_url: String,
         repo_url: String,
         price_usdc: U256,
+        tier: String, // Infrastructure tier: "free", "starter", "growth", "enterprise"
     ) -> Result<U256, RegistryError> {
         // CHECKS: Validate inputs
         if name.is_empty() {
@@ -105,6 +109,10 @@ impl VarityAppRegistry {
         }
         if app_type.is_empty() {
             return Err(RegistryError::InvalidInput(InvalidInput {}));
+        }
+        // Validate tier - must be one of: free, starter, growth, enterprise
+        if tier != "free" && tier != "starter" && tier != "growth" && tier != "enterprise" {
+            return Err(RegistryError::InvalidTier(InvalidTier {}));
         }
 
         // EFFECTS: Update state
@@ -127,6 +135,7 @@ impl VarityAppRegistry {
         self.app_repos.setter(app_id).set_str(repo_url);
         self.app_prices.insert(app_id, price_usdc);
         self.app_is_approved.insert(app_id, false);
+        self.app_tiers.setter(app_id).set_str(tier.clone());
 
         // Add to pending queue
         self.pending_apps.push(app_id);
@@ -137,6 +146,7 @@ impl VarityAppRegistry {
             developer,
             name,
             app_type,
+            tier,
         }.emit();
 
         Ok(app_id)
@@ -258,6 +268,11 @@ impl VarityAppRegistry {
     /// Get app price
     pub fn get_app_price(&self, app_id: U256) -> U256 {
         self.app_prices.get(app_id)
+    }
+
+    /// Get app tier (free, starter, growth, enterprise)
+    pub fn get_app_tier(&self, app_id: U256) -> String {
+        self.app_tiers.getter(app_id).get_string()
     }
 
     /// Get pending apps count

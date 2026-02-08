@@ -21,12 +21,13 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 // Solidity ABI for events - using compatible types
+// Note: Using uint256 for app_id to match subgraph expectations
 sol! {
-    event AppRegistered(uint64 indexed app_id, string name, string category, uint64 chain_id);
-    event AppApproved(uint64 indexed app_id);
-    event AppRejected(uint64 indexed app_id, string reason);
-    event AppUpdated(uint64 indexed app_id);
-    event AppDeactivated(uint64 indexed app_id);
+    event AppSubmitted(uint256 app_id, address indexed developer, string name, string description, string website_url, string github_url, string logo_url, string category, string tier, string services);
+    event AppApproved(uint256 app_id);
+    event AppRejected(uint256 app_id);
+    event AppUpdated(uint256 app_id);
+    event AppDeactivated(uint256 app_id);
     event AppFeatured(uint64 indexed app_id);
     event AdminAdded();
 }
@@ -37,6 +38,7 @@ const ERROR_APP_NOT_FOUND: &[u8] = b"AppNotFound";
 const ERROR_APP_ALREADY_APPROVED: &[u8] = b"AppAlreadyApproved";
 const ERROR_APP_NOT_APPROVED: &[u8] = b"AppNotApproved";
 const ERROR_INVALID_INPUT: &[u8] = b"InvalidInput";
+const ERROR_INVALID_TIER: &[u8] = b"InvalidTier";
 
 // Define storage using sol_storage! macro
 sol_storage! {
@@ -68,6 +70,10 @@ sol_storage! {
         mapping(uint256 => bool) app_built_with_varity;
         mapping(uint256 => string) app_github_urls;
         mapping(uint256 => uint256) app_screenshot_counts;
+        /// Infrastructure tier: "free", "starter", "growth", "enterprise"
+        mapping(uint256 => string) app_tiers;
+        /// Partnership services used: comma-separated (e.g., "privy,thirdweb,filecoin")
+        mapping(uint256 => string) app_services;
 
         // Screenshot storage (app_id => index => url)
         mapping(uint256 => mapping(uint256 => string)) app_screenshots;
@@ -99,6 +105,12 @@ impl VarityAppRegistry {
     }
 
     /// Register a new app (pending approval)
+    ///
+    /// Infrastructure tiers:
+    /// - "free": $0/mo - Testnet only
+    /// - "starter": $49/mo - 50k transactions
+    /// - "growth": $99/mo - 250k transactions
+    /// - "enterprise": $199/mo - 1M transactions
     #[allow(clippy::too_many_arguments)]
     pub fn register_app(
         &mut self,
@@ -111,6 +123,8 @@ impl VarityAppRegistry {
         built_with_varity: bool,
         github_url: String,
         screenshot_urls: Vec<String>,
+        tier: String,
+        services: String,
     ) -> Result<u64, Vec<u8>> {
         // Validate inputs
         if name.is_empty() || name.len() > 100 {
@@ -124,6 +138,10 @@ impl VarityAppRegistry {
         }
         if screenshot_urls.len() > 5 {
             return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+        // Validate tier - must be one of: free, starter, growth, enterprise
+        if tier != "free" && tier != "starter" && tier != "growth" && tier != "enterprise" {
+            return Err(ERROR_INVALID_TIER.to_vec());
         }
 
         // Get next app ID
@@ -145,6 +163,8 @@ impl VarityAppRegistry {
         self.app_built_with_varity.setter(app_id_u256).set(built_with_varity);
         self.app_github_urls.setter(app_id_u256).set_str(&github_url);
         self.app_screenshot_counts.setter(app_id_u256).set(U256::from(screenshot_urls.len() as u64));
+        self.app_tiers.setter(app_id_u256).set_str(&tier);
+        self.app_services.setter(app_id_u256).set_str(&services);
 
         // Store screenshots
         for (i, url) in screenshot_urls.iter().enumerate() {
@@ -159,8 +179,19 @@ impl VarityAppRegistry {
         self.pending_apps.setter(pending_idx).set(app_id_u256);
         self.pending_count.set(pending_idx + U256::from(1));
 
-        // Event emission temporarily disabled for MVP
-        // Will be re-enabled after testing event API
+        // Emit AppSubmitted event for subgraph indexing
+        self.vm().log(AppSubmitted {
+            app_id: app_id_u256,
+            developer: self.__stylus_host.msg_sender(),
+            name: name.clone(),
+            description: description.clone(),
+            website_url: app_url.clone(),
+            github_url: github_url.clone(),
+            logo_url: logo_url.clone(),
+            category: category.clone(),
+            tier: tier.clone(),
+            services: services.clone(),
+        });
 
         Ok(app_id)
     }
@@ -192,14 +223,14 @@ impl VarityAppRegistry {
 
         // Emit event
         self.vm().log(AppApproved {
-            app_id,
+            app_id: app_id_u256,
         });
 
         Ok(())
     }
 
     /// Reject an app (admin only)
-    pub fn reject_app(&mut self, app_id: u64, reason: String) -> Result<(), Vec<u8>> {
+    pub fn reject_app(&mut self, app_id: u64, _reason: String) -> Result<(), Vec<u8>> {
         // Check admin permission
         if !self.admins.get(self.__stylus_host.msg_sender()) {
             return Err(ERROR_UNAUTHORIZED.to_vec());
@@ -218,8 +249,7 @@ impl VarityAppRegistry {
 
         // Emit event
         self.vm().log(AppRejected {
-            app_id,
-            reason,
+            app_id: app_id_u256,
         });
 
         Ok(())
@@ -271,9 +301,8 @@ impl VarityAppRegistry {
 
         // Emit event
         self.vm().log(AppUpdated {
-            app_id,
+            app_id: app_id_u256,
         });
-
 
         Ok(())
     }
@@ -297,7 +326,7 @@ impl VarityAppRegistry {
 
         // Emit event
         self.vm().log(AppDeactivated {
-            app_id,
+            app_id: app_id_u256,
         });
 
         Ok(())
@@ -367,6 +396,7 @@ impl VarityAppRegistry {
         bool,          // built_with_varity
         String,        // github_url
         u64,           // screenshot_count
+        String,        // tier (free, starter, growth, enterprise)
     ), Vec<u8>> {
         let app_id_u256 = U256::from(app_id);
 
@@ -390,7 +420,32 @@ impl VarityAppRegistry {
             self.app_built_with_varity.get(app_id_u256),
             self.app_github_urls.get(app_id_u256).get_string(),
             self.app_screenshot_counts.get(app_id_u256).to::<u64>(),
+            self.app_tiers.get(app_id_u256).get_string(),
         ))
+    }
+
+    /// Get app partnership services (comma-separated)
+    pub fn get_app_services(&self, app_id: u64) -> Result<String, Vec<u8>> {
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        Ok(self.app_services.get(app_id_u256).get_string())
+    }
+
+    /// Get app infrastructure tier
+    pub fn get_app_tier(&self, app_id: u64) -> Result<String, Vec<u8>> {
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        Ok(self.app_tiers.get(app_id_u256).get_string())
     }
 
     /// Get screenshot URL by index

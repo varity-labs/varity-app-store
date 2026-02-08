@@ -10,3 +10,4 @@ export { AppGrid } from "./AppGrid";
 export { SearchBar } from "./SearchBar";
 export { CategoryFilter } from "./CategoryFilter";
 export { ChainFilter } from "./ChainFilter";
+export { PurchaseButton } from "./PurchaseButton";
