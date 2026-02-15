@@ -316,6 +316,37 @@ export const PAYMENTS_ABI = [
     ],
     outputs: [],
   },
+  {
+    name: "getTotalDeveloperPayouts",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint64" }],
+  },
+  {
+    name: "updateAppPrice",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "appId", type: "uint64" },
+      { name: "newPriceUsdc", type: "uint64" },
+    ],
+    outputs: [],
+  },
+  {
+    name: "deactivateAppPricing",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "appId", type: "uint64" }],
+    outputs: [],
+  },
+  {
+    name: "transferOwnership",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "newOwner", type: "address" }],
+    outputs: [],
+  },
   // Events
   {
     name: "AppPurchased",
@@ -339,6 +370,17 @@ export const PAYMENTS_ABI = [
       { name: "price_usdc", type: "uint256", indexed: false },
       { name: "is_subscription", type: "bool", indexed: false },
       { name: "interval_days", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    name: "BillingPayment",
+    type: "event",
+    inputs: [
+      { name: "app_id", type: "uint256", indexed: true },
+      { name: "developer", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "period_hash", type: "uint256", indexed: false },
+      { name: "timestamp", type: "uint256", indexed: false },
     ],
   },
 ] as const;

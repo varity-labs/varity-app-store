@@ -175,6 +175,25 @@ function getContractInstance() {
   });
 }
 
+// Extract VARITY_METADATA JSON from description HTML comment
+function extractMetadata(description: string): {
+  cleanDescription: string;
+  metadata: Record<string, string>;
+} {
+  const metadataPattern = /\n?\n?<!-- VARITY_METADATA:(.*?) -->/;
+  const match = description.match(metadataPattern);
+  if (!match) {
+    return { cleanDescription: description, metadata: {} };
+  }
+  try {
+    const metadata = JSON.parse(match[1]);
+    const cleanDescription = description.replace(metadataPattern, "").trim();
+    return { cleanDescription, metadata };
+  } catch {
+    return { cleanDescription: description, metadata: {} };
+  }
+}
+
 // Parse contract app data to AppData interface
 function parseAppData(
   id: bigint,
@@ -192,10 +211,11 @@ function parseAppData(
   githubUrl: string,
   screenshotCount: bigint
 ): AppData {
+  const { cleanDescription, metadata } = extractMetadata(description);
   return {
     id,
     name,
-    description,
+    description: cleanDescription,
     appUrl,
     logoUrl,
     category,
@@ -207,6 +227,13 @@ function parseAppData(
     builtWithVarity,
     githubUrl,
     screenshotCount,
+    companyName: metadata.companyName || undefined,
+    website: metadata.websiteUrl || undefined,
+    twitter: metadata.twitterHandle || undefined,
+    linkedin: metadata.linkedinUrl || undefined,
+    privacyPolicyUrl: metadata.privacyPolicyUrl || undefined,
+    supportEmail: metadata.supportEmail || undefined,
+    termsUrl: metadata.termsOfServiceUrl || undefined,
   };
 }
 
