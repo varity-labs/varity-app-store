@@ -39,7 +39,7 @@ Build Command: cd frontend-user && npm install && npm run build
 Output Directory: frontend-user/out
 
 Environment Variables:
-  NEXT_PUBLIC_CONTRACT_ADDRESS=0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74
+  NEXT_PUBLIC_CONTRACT_ADDRESS=0xbf9f4849a5508e9f271c30205c1ce924328e5e1c
   NEXT_PUBLIC_CHAIN_ID=33529
   NEXT_PUBLIC_PRIVY_APP_ID=cm6f5z5og0g91t0pbulwvf5o2
   NEXT_PUBLIC_THIRDWEB_CLIENT_ID=6e3f891a9c88e09a5d02eb71b7cd2cc9
@@ -71,7 +71,7 @@ Build Command: cd frontend-developer && npm install && npm run build
 Output Directory: frontend-developer/out
 
 Environment Variables:
-  NEXT_PUBLIC_CONTRACT_ADDRESS=0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74
+  NEXT_PUBLIC_CONTRACT_ADDRESS=0xbf9f4849a5508e9f271c30205c1ce924328e5e1c
   NEXT_PUBLIC_CHAIN_ID=33529
   NEXT_PUBLIC_PRIVY_APP_ID=cm6f5z5og0g91t0pbulwvf5o2
   NEXT_PUBLIC_THIRDWEB_CLIENT_ID=6e3f891a9c88e09a5d02eb71b7cd2cc9
@@ -276,7 +276,7 @@ export async function generateStaticParams() {
 
 ```env
 # Smart Contract
-NEXT_PUBLIC_CONTRACT_ADDRESS=0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74
+NEXT_PUBLIC_CONTRACT_ADDRESS=0xbf9f4849a5508e9f271c30205c1ce924328e5e1c
 
 # Varity L3 Network
 NEXT_PUBLIC_CHAIN_ID=33529

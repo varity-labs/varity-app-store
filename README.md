@@ -118,7 +118,7 @@ Domain: store.varity.so
 
 **Environment Variables**:
 ```
-NEXT_PUBLIC_CONTRACT_ADDRESS=0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74
+NEXT_PUBLIC_CONTRACT_ADDRESS=0xbf9f4849a5508e9f271c30205c1ce924328e5e1c
 NEXT_PUBLIC_CHAIN_ID=33529
 NEXT_PUBLIC_PRIVY_APP_ID=cm6f5z5og0g91t0pbulwvf5o2
 NEXT_PUBLIC_THIRDWEB_CLIENT_ID=6e3f891a9c88e09a5d02eb71b7cd2cc9
@@ -139,8 +139,8 @@ NEXT_PUBLIC_THIRDWEB_CLIENT_ID=6e3f891a9c88e09a5d02eb71b7cd2cc9
 ### Deployed Contract
 - **Network:** Varity L3 Testnet
 - **Chain ID:** 33529
-- **Address:** `0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74`
-- **Explorer:** [View on Explorer](https://explorer-varity-testnet-rroe52pwjp.t.conduit.xyz/address/0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74)
+- **Address:** `0xbf9f4849a5508e9f271c30205c1ce924328e5e1c`
+- **Explorer:** [View on Explorer](https://explorer-varity-testnet-rroe52pwjp.t.conduit.xyz/address/0xbf9f4849a5508e9f271c30205c1ce924328e5e1c)
 
 ---
 

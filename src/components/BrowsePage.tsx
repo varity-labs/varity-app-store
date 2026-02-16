@@ -8,7 +8,6 @@ import { AppGrid } from "@/components/AppGrid";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { AppData } from "@/lib/constants";
-import { DEMO_APPS } from "@/lib/constants";
 import { useContract } from "@/hooks/useContract";
 import {
   StructuredData,
@@ -50,18 +49,11 @@ export function BrowsePage() {
 
         // Filter to only show approved apps (getAllApps already returns only approved + active)
         const approvedApps = fetchedApps.filter(app => app.isApproved && app.isActive);
-
-        // If no apps from contract, use demo apps for presentation
-        if (approvedApps.length === 0) {
-          setApps(DEMO_APPS);
-        } else {
-          setApps(approvedApps);
-        }
+        setApps(approvedApps);
       } catch (error) {
         if (!isMounted) return;
         console.error("Error loading apps:", error);
-        // Use demo apps as fallback on error
-        setApps(DEMO_APPS);
+        setApps([]);
       } finally {
         if (isMounted) {
           setIsLoading(false);

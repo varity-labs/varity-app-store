@@ -78,6 +78,7 @@ export interface AppData {
   builtWithVarity: boolean;
   githubUrl: string;
   screenshotCount: bigint;
+  tier?: string;
   screenshots?: string[];
   // Enhanced metadata for professional presentation
   companyName?: string;

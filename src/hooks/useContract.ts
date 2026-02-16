@@ -8,7 +8,7 @@ import type { AppData } from "@/lib/constants";
 import { handleTransactionError } from "@/lib/transactions";
 
 // Contract address on Varity L3
-const CONTRACT_ADDRESS = "0x52d4f28ebe20fad743bbef9daa61bfe3ce91eb74";
+const CONTRACT_ADDRESS = "0xbf9f4849a5508e9f271c30205c1ce924328e5e1c";
 
 // Contract ABI for read functions
 const CONTRACT_ABI = [
@@ -32,6 +32,7 @@ const CONTRACT_ABI = [
       { name: "built_with_varity", type: "bool" },
       { name: "github_url", type: "string" },
       { name: "screenshot_count", type: "uint64" },
+      { name: "tier", type: "string" },
     ],
     stateMutability: "view",
   },
@@ -103,6 +104,8 @@ const CONTRACT_ABI = [
       { name: "built_with_varity", type: "bool" },
       { name: "github_url", type: "string" },
       { name: "screenshot_urls", type: "string[]" },
+      { name: "tier", type: "string" },
+      { name: "services", type: "string" },
     ],
     outputs: [{ name: "app_id", type: "uint64" }],
     stateMutability: "nonpayable",
@@ -209,7 +212,8 @@ function parseAppData(
   createdAt: bigint,
   builtWithVarity: boolean,
   githubUrl: string,
-  screenshotCount: bigint
+  screenshotCount: bigint,
+  tier: string
 ): AppData {
   const { cleanDescription, metadata } = extractMetadata(description);
   return {
@@ -227,6 +231,7 @@ function parseAppData(
     builtWithVarity,
     githubUrl,
     screenshotCount,
+    tier,
     companyName: metadata.companyName || undefined,
     website: metadata.websiteUrl || undefined,
     twitter: metadata.twitterHandle || undefined,
@@ -278,7 +283,8 @@ export function useContract() {
           builtWithVarity,
           githubUrl,
           screenshotCount,
-        ] = result as [bigint, string, string, string, string, string, bigint, string, boolean, boolean, bigint, boolean, string, bigint];
+          tier,
+        ] = result as [bigint, string, string, string, string, string, bigint, string, boolean, boolean, bigint, boolean, string, bigint, string];
 
         return parseAppData(
           id,
@@ -294,7 +300,8 @@ export function useContract() {
           createdAt,
           builtWithVarity,
           githubUrl,
-          screenshotCount
+          screenshotCount,
+          tier
         );
       } catch (error) {
         console.error("Error fetching app:", error);
@@ -484,6 +491,8 @@ export function useContract() {
       builtWithVarity: boolean;
       githubUrl: string;
       screenshots: string[];
+      tier: string;
+      services: string;
     }) => {
       if (!account) {
         throw new Error("Please sign in to continue");
@@ -508,6 +517,8 @@ export function useContract() {
             appData.builtWithVarity,
             appData.githubUrl,
             appData.screenshots,
+            appData.tier,
+            appData.services,
           ],
         });
 
