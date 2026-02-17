@@ -62,7 +62,7 @@ git push -u origin main
    Add these in 4everland dashboard:
    ```
    NEXT_PUBLIC_PRIVY_APP_ID=cmhwbozxu004fjr0cicfz0tf8
-   NEXT_PUBLIC_THIRDWEB_CLIENT_ID=acb17e07e34ab2b8317aa40cbb1b5e1d
+   NEXT_PUBLIC_THIRDWEB_CLIENT_ID=a35636133eb5ec6f30eb9f4c15fce2f3
    NEXT_PUBLIC_VARITY_REGISTRY_ADDRESS=0xbf9f4849a5508e9f271c30205c1ce924328e5e1c
    ```
 

@@ -58,7 +58,7 @@ async function fetchBuildTimeApps(): Promise<Map<number, { name: string; categor
   const apps = new Map<number, { name: string; category: string }>();
 
   try {
-    const client = createThirdwebClient({ clientId: "acb17e07e34ab2b8317aa40cbb1b5e1d" });
+    const client = createThirdwebClient({ clientId: "a35636133eb5ec6f30eb9f4c15fce2f3" });
     const chain = defineChain({
       id: 33529,
       rpc: "https://rpc-varity-testnet-rroe52pwjp.t.conduit.xyz",
