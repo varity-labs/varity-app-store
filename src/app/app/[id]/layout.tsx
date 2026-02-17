@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { createThirdwebClient, getContract, readContract, defineChain } from "thirdweb";
+import { parseAppId, buildAppSlug } from "@/lib/slug";
 
 // SEO-optimized category keywords for app discovery
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
@@ -13,19 +15,116 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   "Security": ["cybersecurity", "security tools", "access management", "encryption"],
 };
 
-// Demo app metadata for SEO-rich static pages
-const DEMO_APP_META: Record<string, { name: string; category: string; shortDesc: string }> = {
-  "1": { name: "Business Dashboard Pro", category: "Business Tools", shortDesc: "business intelligence and analytics platform" },
-  "2": { name: "AI Writing Assistant", category: "Productivity", shortDesc: "AI-powered content generation and writing tool" },
-  "3": { name: "Finance Manager Pro", category: "Finance", shortDesc: "expense tracking and budget management" },
-  "4": { name: "Team Collaboration Hub", category: "Communication", shortDesc: "real-time collaboration and video conferencing" },
-  "5": { name: "Developer Toolkit", category: "Engineering Tools", shortDesc: "developer tools for code and API management" },
-};
+// Minimal ABI for build-time contract reads
+const BUILD_ABI = [
+  {
+    type: "function" as const,
+    name: "getAllApps",
+    inputs: [{ name: "max_results", type: "uint64" }],
+    outputs: [{ name: "app_ids", type: "uint64[]" }],
+    stateMutability: "view" as const,
+  },
+  {
+    type: "function" as const,
+    name: "getApp",
+    inputs: [{ name: "app_id", type: "uint64" }],
+    outputs: [
+      { name: "id", type: "uint64" },
+      { name: "name", type: "string" },
+      { name: "description", type: "string" },
+      { name: "app_url", type: "string" },
+      { name: "logo_url", type: "string" },
+      { name: "category", type: "string" },
+      { name: "chain_id", type: "uint64" },
+      { name: "developer", type: "address" },
+      { name: "is_active", type: "bool" },
+      { name: "is_approved", type: "bool" },
+      { name: "created_at", type: "uint64" },
+      { name: "built_with_varity", type: "bool" },
+      { name: "github_url", type: "string" },
+      { name: "screenshot_count", type: "uint64" },
+      { name: "tier", type: "string" },
+    ],
+    stateMutability: "view" as const,
+  },
+] as const;
 
-// Generate static params for demo app IDs at build time
-// Only generates pages for actual demo apps (IDs 1-5) to optimize build time
-export function generateStaticParams(): Array<{ id: string }> {
-  return Object.keys(DEMO_APP_META).map((id) => ({ id }));
+// Cache for build-time app data (shared between generateStaticParams and generateMetadata)
+let _buildTimeApps: Map<number, { name: string; category: string }> | null = null;
+
+async function fetchBuildTimeApps(): Promise<Map<number, { name: string; category: string }>> {
+  if (_buildTimeApps) return _buildTimeApps;
+
+  const apps = new Map<number, { name: string; category: string }>();
+
+  try {
+    const client = createThirdwebClient({ clientId: "acb17e07e34ab2b8317aa40cbb1b5e1d" });
+    const chain = defineChain({
+      id: 33529,
+      rpc: "https://rpc-varity-testnet-rroe52pwjp.t.conduit.xyz",
+    });
+    const contract = getContract({
+      client,
+      address: process.env.NEXT_PUBLIC_VARITY_REGISTRY_ADDRESS || "0xbf9f4849a5508e9f271c30205c1ce924328e5e1c",
+      chain,
+      abi: BUILD_ABI,
+    });
+
+    const appIds = await readContract({
+      contract,
+      method: "getAllApps",
+      params: [BigInt(200)],
+    });
+
+    for (const id of appIds as bigint[]) {
+      try {
+        const result = await readContract({
+          contract,
+          method: "getApp",
+          params: [id],
+        });
+        const name = (result as readonly unknown[])[1] as string;
+        const category = (result as readonly unknown[])[5] as string;
+        if (name) {
+          apps.set(Number(id), { name, category });
+        }
+      } catch {
+        // Skip individual app fetch failures
+      }
+    }
+  } catch (e) {
+    console.warn("Build: Could not fetch apps from contract (this is OK for first build):", e);
+  }
+
+  _buildTimeApps = apps;
+  return apps;
+}
+
+/**
+ * Generate static params for app detail pages.
+ *
+ * Generates:
+ * - Numeric IDs 1-200 (fallback for any app)
+ * - Slug-based routes for existing approved apps (e.g., "my-saas-app-1")
+ */
+export async function generateStaticParams(): Promise<Array<{ id: string }>> {
+  // Numeric fallbacks (always works, even for apps submitted after build)
+  const numericParams = Array.from({ length: 200 }, (_, i) => ({
+    id: String(i + 1),
+  }));
+
+  // Fetch existing apps for slug-based routes
+  const apps = await fetchBuildTimeApps();
+  const slugParams: Array<{ id: string }> = [];
+
+  for (const [id, { name }] of apps) {
+    const slug = buildAppSlug(name, id);
+    if (slug !== String(id)) {
+      slugParams.push({ id: slug });
+    }
+  }
+
+  return [...numericParams, ...slugParams];
 }
 
 // Generate SEO-optimized metadata for app detail pages
@@ -34,28 +133,30 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { id: appId } = await params;
-  const demoMeta = DEMO_APP_META[appId];
+  const { id: rawSlug } = await params;
+  const numericId = parseAppId(rawSlug);
 
-  // Use demo app metadata if available, otherwise use generic but SEO-friendly metadata
-  const appName = demoMeta?.name ?? `App #${appId}`;
-  const category = demoMeta?.category ?? "Business Tools";
-  const shortDesc = demoMeta?.shortDesc ?? "business application";
+  // Try to get real app data from build-time cache
+  const apps = await fetchBuildTimeApps();
+  const appMeta = apps.get(numericId);
+
+  const appName = appMeta?.name ?? `App #${numericId}`;
+  const category = appMeta?.category ?? "Business Tools";
 
   const title = `${appName} | ${category} | Varity App Store`;
-  const description = `Discover ${appName} - a verified ${shortDesc} on Varity App Store. Browse enterprise-grade decentralized applications for productivity, analytics, finance, and more.`;
+  const description = `Discover ${appName} on Varity App Store. Browse verified applications for productivity, analytics, finance, and more.`;
 
-  // Build keywords from category
   const categoryKeywords = CATEGORY_KEYWORDS[category] ?? CATEGORY_KEYWORDS["Business Tools"];
   const keywords = [
     appName.toLowerCase(),
     category.toLowerCase(),
     "varity app store",
-    "decentralized application",
-    "web3 app",
     "enterprise software",
+    "verified application",
     ...categoryKeywords,
   ];
+
+  const canonicalSlug = appMeta ? buildAppSlug(appMeta.name, numericId) : String(numericId);
 
   return {
     title,
@@ -64,7 +165,7 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      url: `https://store.varity.so/app/${appId}`,
+      url: `https://store.varity.so/app/${canonicalSlug}`,
       siteName: "Varity App Store",
       images: [
         {
@@ -83,7 +184,7 @@ export async function generateMetadata({
       images: ["/og-image.png"],
     },
     alternates: {
-      canonical: `https://store.varity.so/app/${appId}`,
+      canonical: `https://store.varity.so/app/${canonicalSlug}`,
     },
   };
 }

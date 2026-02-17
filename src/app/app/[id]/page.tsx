@@ -13,6 +13,7 @@ import type { AppData } from "@/lib/constants";
 import { formatDate, truncateAddress } from "@/lib/utils";
 import { useContract } from "@/hooks/useContract";
 import { StructuredData, createAppDetailPageSchema, type AppSchemaData } from "@/components/StructuredData";
+import { parseAppId } from "@/lib/slug";
 
 // User-friendly platform names
 const platformNames: Record<number, string> = {
@@ -27,7 +28,9 @@ const platformNames: Record<number, string> = {
 
 export default function AppDetailPage(): React.JSX.Element {
   const params = useParams();
-  const appId = params.id as string;
+  const rawSlug = params.id as string;
+  const numericId = parseAppId(rawSlug);
+  const appId = String(numericId);
   const [app, setApp] = useState<AppData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

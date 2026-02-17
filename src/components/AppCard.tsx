@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Badge } from "./Badge";
 import { ArrowUpRight, CheckCircle } from "lucide-react";
 import type { AppData } from "@/lib/constants";
+import { buildAppSlug } from "@/lib/slug";
 
 interface AppCardProps {
   app: AppData;
@@ -28,7 +29,7 @@ function AppCardComponent({ app }: AppCardProps): React.ReactElement {
 
   return (
     <Link
-      href={`/app/${app.id.toString()}`}
+      href={`/app/${buildAppSlug(app.name, app.id)}`}
       className="group card card-hover relative flex flex-col"
       aria-label={`View details for ${app.name} - ${app.category} application`}
     >
