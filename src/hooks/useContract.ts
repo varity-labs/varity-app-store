@@ -100,7 +100,7 @@ const CONTRACT_ABI = [
       { name: "app_url", type: "string" },
       { name: "logo_url", type: "string" },
       { name: "category", type: "string" },
-      { name: "chain_id", type: "uint256" },
+      { name: "chain_id", type: "uint64" },
       { name: "built_with_varity", type: "bool" },
       { name: "github_url", type: "string" },
       { name: "screenshot_urls", type: "string[]" },
