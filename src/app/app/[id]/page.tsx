@@ -10,7 +10,6 @@ import { ImageCarousel } from "@/components/ImageCarousel";
 import { PurchaseButton } from "@/components/PurchaseButton";
 import { ArrowLeft, ExternalLink, Github, Calendar, User, AlertCircle, Twitter, Linkedin, Globe, Shield, Mail, FileText } from "lucide-react";
 import type { AppData } from "@/lib/constants";
-import { DEMO_APPS } from "@/lib/constants";
 import { formatDate, truncateAddress } from "@/lib/utils";
 import { useContract } from "@/hooks/useContract";
 import { StructuredData, createAppDetailPageSchema, type AppSchemaData } from "@/components/StructuredData";
@@ -40,14 +39,6 @@ export default function AppDetailPage(): React.JSX.Element {
       try {
         setIsLoading(true);
         setError(null);
-
-        // Try to get from demo apps first for presentation
-        const demoApp = DEMO_APPS.find(a => a.id === BigInt(appId));
-        if (demoApp) {
-          setApp(demoApp);
-          setIsLoading(false);
-          return;
-        }
 
         // Fetch app data from contract
         const appData = await getApp(BigInt(appId));
