@@ -1,5 +1,4 @@
 import { MetadataRoute } from "next";
-import { DEMO_APPS } from "@/lib/constants";
 
 export const dynamic = "force-static";
 
@@ -34,9 +33,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const appPages: MetadataRoute.Sitemap = DEMO_APPS.map((app) => ({
-    url: `${baseUrl}/app/${app.id.toString()}`,
-    lastModified: new Date(Number(app.createdAt)).toISOString(),
+  // Generate app pages for IDs 1-200 (matches generateStaticParams)
+  const appPages: MetadataRoute.Sitemap = Array.from({ length: 200 }, (_, i) => ({
+    url: `${baseUrl}/app/${i + 1}`,
+    lastModified: currentDate,
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
