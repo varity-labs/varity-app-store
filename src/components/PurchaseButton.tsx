@@ -41,6 +41,14 @@ export function PurchaseButton({ appId, className = "" }: PurchaseButtonProps): 
     async function fetchData() {
       try {
         setIsLoading(true);
+
+        // Skip if payments contract not configured (beta/development mode)
+        if (!process.env.NEXT_PUBLIC_VARITY_PAYMENTS_ADDRESS) {
+          setIsLoading(false);
+          setError("Payments not configured yet");
+          return;
+        }
+
         const contract = getPaymentsContract();
 
         // Get app pricing

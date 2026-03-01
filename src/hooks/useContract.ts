@@ -7,8 +7,8 @@ import { thirdwebClient, varityL3 } from "@/lib/thirdweb";
 import type { AppData } from "@/lib/constants";
 import { handleTransactionError } from "@/lib/transactions";
 
-// Contract address on Varity L3
-const CONTRACT_ADDRESS = "0xbf9f4849a5508e9f271c30205c1ce924328e5e1c";
+// Contract address on Varity L3 (from environment variable)
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_VARITY_REGISTRY_ADDRESS || "0xe54fa967d177031d6edec8ec3d3540aaebb4db26";
 
 // Contract ABI for read functions
 const CONTRACT_ABI = [
