@@ -11,10 +11,10 @@ const aboutPageStructuredData = {
   mainEntity: {
     "@type": "Organization",
     name: "Varity",
-    url: "https://varity.so",
+    url: "https://www.varity.so",
     description: "Varity provides infrastructure for building and deploying enterprise applications with up to 85% cost savings compared to traditional cloud providers.",
     sameAs: [
-      "https://twitter.com/VarityHQ",
+      "https://x.com/VarityHQ",
     ],
     contactPoint: {
       "@type": "ContactPoint",

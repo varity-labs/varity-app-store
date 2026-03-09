@@ -12,7 +12,7 @@ The Varity App Store is a curated marketplace of enterprise-grade applications d
 - URL: https://store.varity.so
 - Type: Enterprise application marketplace
 - Target Audience: Businesses and professionals seeking quality software tools
-- Owner: Varity (https://varity.so)
+- Owner: Varity (https://www.varity.so)
 - Contact: hello@varity.so
 
 ## What Makes Varity App Store Different
@@ -71,7 +71,7 @@ Developers can submit applications through the Developer Portal at https://devel
 ## Social Media
 
 - Twitter/X: https://x.com/VarityHQ
-- Discord: https://discord.gg/Uhjx6yhJ
+- Discord: https://discord.gg/7vWsdwa2Bg
 - LinkedIn: https://www.linkedin.com/company/varity-labs
 - GitHub: https://github.com/varity-labs
 - Reddit: https://www.reddit.com/r/varityHQ

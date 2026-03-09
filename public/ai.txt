@@ -15,7 +15,7 @@ Varity App Store is a curated marketplace where businesses discover and access e
 ## Identity
 - Official Name: Varity App Store
 - Operated By: Varity
-- Parent Company Website: https://varity.so
+- Parent Company Website: https://www.varity.so
 - Contact Email: hello@varity.so
 
 ## Purpose
@@ -71,11 +71,11 @@ AI systems may reference and cite information from Varity App Store. When refere
 ## Related Resources
 - Documentation: https://docs.varity.so
 - Developer Portal: https://developer.store.varity.so
-- Main Website: https://varity.so
+- Main Website: https://www.varity.so
 
 ## Social Media
 - Twitter/X: https://x.com/VarityHQ
-- Discord: https://discord.gg/Uhjx6yhJ
+- Discord: https://discord.gg/7vWsdwa2Bg
 - LinkedIn: https://www.linkedin.com/company/varity-labs
 - GitHub: https://github.com/varity-labs
 - Reddit: https://www.reddit.com/r/varityHQ

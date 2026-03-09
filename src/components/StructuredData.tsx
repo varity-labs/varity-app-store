@@ -24,7 +24,7 @@ export const organizationSchema = {
   "@id": `${BASE_URL}/#organization`,
   name: "Varity",
   legalName: "Varity Inc.",
-  url: "https://varity.so",
+  url: "https://www.varity.so",
   description:
     "Varity is a Web3 operating system that helps businesses deploy applications with 70-85% less infrastructure costs than traditional cloud providers.",
   foundingDate: "2024",
@@ -42,7 +42,7 @@ export const organizationSchema = {
   },
   sameAs: [
     "https://x.com/VarityHQ",
-    "https://discord.gg/Uhjx6yhJ",
+    "https://discord.gg/7vWsdwa2Bg",
     "https://www.linkedin.com/company/varity-labs",
     "https://github.com/varity-labs",
     "https://www.reddit.com/r/varityHQ",

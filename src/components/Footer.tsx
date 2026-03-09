@@ -23,7 +23,7 @@ function RedditIcon({ className }: { className?: string }): React.JSX.Element {
 // Social media links
 const socialLinks = [
   { label: "Twitter", href: "https://x.com/VarityHQ", icon: Twitter },
-  { label: "Discord", href: "https://discord.gg/Uhjx6yhJ", icon: DiscordIcon },
+  { label: "Discord", href: "https://discord.gg/7vWsdwa2Bg", icon: DiscordIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/varity-labs", icon: Linkedin },
   { label: "GitHub", href: "https://github.com/varity-labs", icon: Github },
   { label: "Reddit", href: "https://www.reddit.com/r/varityHQ", icon: RedditIcon },

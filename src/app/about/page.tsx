@@ -319,7 +319,7 @@ export default function AboutPage(): ReactElement {
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-foreground-muted">
                 <a
-                  href="https://varity.so"
+                  href="https://www.varity.so"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
@@ -337,7 +337,7 @@ export default function AboutPage(): ReactElement {
                   Documentation
                 </a>
                 <a
-                  href="https://twitter.com/VarityHQ"
+                  href="https://x.com/VarityHQ"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
