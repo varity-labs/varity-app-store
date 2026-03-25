@@ -1,0 +1,42 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/macoding/varity-workspace/varity-app-store/contracts/solidity-baseline/contracts/VarityAppRegistry.sol": {
+      "lastModificationDate": 1768866814765,
+      "contentHash": "b8adc8490b486040ed6c5b5389943d59",
+      "sourceName": "contracts/VarityAppRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "VarityAppRegistry"
+      ]
+    }
+  }
+}

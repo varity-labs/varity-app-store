@@ -1,0 +1,12 @@
+{
+  "deployment": "2031456",
+  "operations": {
+    "register_app": "712574",
+    "approve_app": "49622",
+    "feature_app": "73981",
+    "update_app": "105996",
+    "add_admin": "47242",
+    "reject_app": "31418",
+    "deactivate_app": "25559"
+  }
+}

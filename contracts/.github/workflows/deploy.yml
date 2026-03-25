@@ -1,0 +1,154 @@
+name: Deploy to Varity L3
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'contracts/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'testnet'
+        type: choice
+        options:
+          - testnet
+          - mainnet
+
+env:
+  RUST_VERSION: 1.75.0
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache target directory
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-stylus
+        run: cargo install cargo-stylus
+
+      - name: Run tests
+        run: cargo test --verbose
+        working-directory: contracts
+
+      - name: Build contract
+        run: cargo build --release --target wasm32-unknown-unknown
+        working-directory: contracts
+
+      - name: Check Stylus compatibility
+        run: |
+          cargo stylus check \
+            --endpoint https://rpc-varity-testnet-rroe52pwjp.t.conduit.xyz
+        working-directory: contracts
+
+  deploy-testnet:
+    name: Deploy to Testnet
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'testnet'
+    environment: testnet
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: Install cargo-stylus
+        run: cargo install cargo-stylus
+
+      - name: Deploy to Varity L3 Testnet
+        env:
+          PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+        run: |
+          cargo stylus deploy \
+            --endpoint https://rpc-varity-testnet-rroe52pwjp.t.conduit.xyz \
+            --private-key $PRIVATE_KEY
+        working-directory: contracts
+
+      - name: Save deployment info
+        run: |
+          echo "Deployment completed at $(date)" >> deployment-info.txt
+          echo "Network: Varity L3 Testnet" >> deployment-info.txt
+          echo "Chain ID: 33529" >> deployment-info.txt
+
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-info
+          path: deployment-info.txt
+
+  deploy-mainnet:
+    name: Deploy to Mainnet
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'mainnet'
+    environment: mainnet
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: Install cargo-stylus
+        run: cargo install cargo-stylus
+
+      - name: Deploy to Varity L3 Mainnet
+        env:
+          PRIVATE_KEY: ${{ secrets.MAINNET_PRIVATE_KEY }}
+        run: |
+          cargo stylus deploy \
+            --endpoint https://rpc-varity-mainnet.example.com \
+            --private-key $PRIVATE_KEY
+        working-directory: contracts
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Mainnet Deployment v${{ github.run_number }}
+          body: |
+            Deployed to Varity L3 Mainnet
+            Deployment: #${{ github.run_number }}
+            Commit: ${{ github.sha }}

@@ -1,0 +1,84 @@
+# Varity App Store - Repository .gitignore
+# ==============================================
+
+# CRITICAL: Environment files with secrets
+# -----------------------------------------
+# These files contain private keys and must NEVER be committed
+.env
+.env.local
+.env.*.local
+**/.env
+**/contracts/.env
+
+# Safe to commit (examples and production public configs)
+!.env.example
+!.env.production
+!frontend/.env.production
+
+# Dependencies
+# -----------------------------------------
+node_modules/
+**/node_modules/
+.pnp
+.pnp.*
+.yarn/
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Build outputs
+# -----------------------------------------
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Rust/Cargo build artifacts
+# -----------------------------------------
+**/target/
+**/*.rs.bk
+Cargo.lock
+**/debug/
+**/release/
+
+# IDE
+# -----------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+# -----------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Testing
+# -----------------------------------------
+coverage/
+.nyc_output
+
+# Deployment
+# -----------------------------------------
+.vercel
+.netlify
+.4everland
+
+# OS
+# -----------------------------------------
+.DS_Store
+Thumbs.db
+
+# Temporary files
+# -----------------------------------------
+*.tmp
+*.temp
+.cache/

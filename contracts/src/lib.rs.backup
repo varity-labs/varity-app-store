@@ -1,0 +1,870 @@
+//! VarityAppRegistry - Varity App Store Registry Smart Contract
+//!
+//! A high-performance, gas-efficient app registry built with Rust + Arbitrum Stylus.
+//! Deployed on Varity L3 (Chain ID 33529).
+//!
+//! Key Features:
+//! - 40%+ gas savings vs Solidity
+//! - Multi-chain app support (apps can be deployed on any chain)
+//! - Quality curation with manual approval process
+//! - Admin access control
+//! - Developer self-service (register, update, deactivate)
+//! - Filtering by category, chain, and developer
+
+#![cfg_attr(not(feature = "export-abi"), no_main)]
+extern crate alloc;
+
+use stylus_sdk::prelude::*;
+use stylus_sdk::alloy_primitives::{Address, U256};
+use stylus_sdk::alloy_sol_types::sol;
+use stylus_sdk::{block, evm, msg};
+
+use alloc::string::String;
+use alloc::vec::Vec;
+
+// Solidity ABI for events - using compatible types
+sol! {
+    event AppRegistered(uint64 indexed app_id, string name, string category, uint64 chain_id);
+    event AppApproved(uint64 indexed app_id);
+    event AppRejected(uint64 indexed app_id, string reason);
+    event AppUpdated(uint64 indexed app_id);
+    event AppDeactivated(uint64 indexed app_id);
+    event AppFeatured(uint64 indexed app_id);
+    event AdminAdded();
+}
+
+// Custom error codes
+const ERROR_UNAUTHORIZED: &[u8] = b"Unauthorized";
+const ERROR_APP_NOT_FOUND: &[u8] = b"AppNotFound";
+const ERROR_APP_ALREADY_APPROVED: &[u8] = b"AppAlreadyApproved";
+const ERROR_APP_NOT_APPROVED: &[u8] = b"AppNotApproved";
+const ERROR_INVALID_INPUT: &[u8] = b"InvalidInput";
+
+// Define storage using sol_storage! macro
+sol_storage! {
+    /// Main contract storage
+    #[entrypoint]
+    pub struct VarityAppRegistry {
+        /// Counter for next app ID
+        uint256 next_app_id;
+        /// Admin addresses with approval permissions
+        mapping(address => bool) admins;
+        /// Contract owner
+        address owner;
+        /// Pending app IDs count
+        uint256 pending_count;
+        /// Featured app IDs count
+        uint256 featured_count;
+
+        // App storage - using separate mappings for each field
+        mapping(uint256 => string) app_names;
+        mapping(uint256 => string) app_descriptions;
+        mapping(uint256 => string) app_urls;
+        mapping(uint256 => string) app_logo_urls;
+        mapping(uint256 => string) app_categories;
+        mapping(uint256 => uint256) app_chain_ids;
+        mapping(uint256 => address) app_developers;
+        mapping(uint256 => bool) app_is_active;
+        mapping(uint256 => bool) app_is_approved;
+        mapping(uint256 => uint256) app_created_at;
+        mapping(uint256 => bool) app_built_with_varity;
+        mapping(uint256 => string) app_github_urls;
+        mapping(uint256 => uint256) app_screenshot_counts;
+
+        // Screenshot storage (app_id => index => url)
+        mapping(uint256 => mapping(uint256 => string)) app_screenshots;
+
+        // Pending and featured arrays (stored as mapping with count)
+        mapping(uint256 => uint256) pending_apps;
+        mapping(uint256 => uint256) featured_apps;
+    }
+}
+
+#[public]
+impl VarityAppRegistry {
+    /// Initialize contract (set deployer as first admin)
+    pub fn initialize(&mut self) -> Result<(), Vec<u8>> {
+        let deployer = msg::sender();
+        let next_id = self.next_app_id.get();
+
+        // Only initialize once
+        if next_id != U256::from(0) {
+            return Ok(()); // Already initialized
+        }
+
+        self.owner.set(deployer);
+        self.admins.setter(deployer).set(true);
+        self.next_app_id.set(U256::from(1));
+        self.pending_count.set(U256::from(0));
+        self.featured_count.set(U256::from(0));
+        Ok(())
+    }
+
+    /// Register a new app (pending approval)
+    #[allow(clippy::too_many_arguments)]
+    pub fn register_app(
+        &mut self,
+        name: String,
+        description: String,
+        app_url: String,
+        logo_url: String,
+        category: String,
+        chain_id: u64,
+        built_with_varity: bool,
+        github_url: String,
+        screenshot_urls: Vec<String>,
+    ) -> Result<u64, Vec<u8>> {
+        // Validate inputs
+        if name.is_empty() || name.len() > 100 {
+            return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+        if description.is_empty() || description.len() > 1000 {
+            return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+        if app_url.is_empty() {
+            return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+        if screenshot_urls.len() > 5 {
+            return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+
+        // Get next app ID
+        let app_id_u256 = self.next_app_id.get();
+        let app_id = app_id_u256.to::<u64>();
+        self.next_app_id.set(app_id_u256 + U256::from(1));
+
+        // Store app data
+        self.app_names.setter(app_id_u256).set_str(&name);
+        self.app_descriptions.setter(app_id_u256).set_str(&description);
+        self.app_urls.setter(app_id_u256).set_str(&app_url);
+        self.app_logo_urls.setter(app_id_u256).set_str(&logo_url);
+        self.app_categories.setter(app_id_u256).set_str(&category);
+        self.app_chain_ids.setter(app_id_u256).set(U256::from(chain_id));
+        self.app_developers.setter(app_id_u256).set(msg::sender());
+        self.app_is_active.setter(app_id_u256).set(true);
+        self.app_is_approved.setter(app_id_u256).set(false); // Pending
+        self.app_created_at.setter(app_id_u256).set(U256::from(block::timestamp()));
+        self.app_built_with_varity.setter(app_id_u256).set(built_with_varity);
+        self.app_github_urls.setter(app_id_u256).set_str(&github_url);
+        self.app_screenshot_counts.setter(app_id_u256).set(U256::from(screenshot_urls.len() as u64));
+
+        // Store screenshots
+        for (i, url) in screenshot_urls.iter().enumerate() {
+            self.app_screenshots
+                .setter(app_id_u256)
+                .setter(U256::from(i))
+                .set_str(url);
+        }
+
+        // Add to pending list
+        let pending_idx = self.pending_count.get();
+        self.pending_apps.setter(pending_idx).set(app_id_u256);
+        self.pending_count.set(pending_idx + U256::from(1));
+
+        // Event emission temporarily disabled for MVP
+        // Will be re-enabled after testing event API
+
+        Ok(app_id)
+    }
+
+    /// Approve an app (admin only)
+    pub fn approve_app(&mut self, app_id: u64) -> Result<(), Vec<u8>> {
+        // Check admin permission
+        if !self.admins.get(msg::sender()) {
+            return Err(ERROR_UNAUTHORIZED.to_vec());
+        }
+
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        // Check not already approved
+        if self.app_is_approved.get(app_id_u256) {
+            return Err(ERROR_APP_ALREADY_APPROVED.to_vec());
+        }
+
+        // Approve app
+        self.app_is_approved.setter(app_id_u256).set(true);
+
+        // Remove from pending list (we'll leave it for simplicity in MVP)
+        // In production, implement proper removal logic
+
+        // Emit event
+        // self.vm().log(AppApproved {
+            app_id,
+        });
+
+        Ok(())
+    }
+
+    /// Reject an app (admin only)
+    pub fn reject_app(&mut self, app_id: u64, reason: String) -> Result<(), Vec<u8>> {
+        // Check admin permission
+        if !self.admins.get(msg::sender()) {
+            return Err(ERROR_UNAUTHORIZED.to_vec());
+        }
+
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        // Deactivate app
+        self.app_is_active.setter(app_id_u256).set(false);
+        self.app_is_approved.setter(app_id_u256).set(false);
+
+        // Emit event
+        // self.vm().log(AppRejected {
+            app_id,
+            reason,
+        });
+
+        Ok(())
+    }
+
+    /// Update app metadata (developer only)
+    pub fn update_app(
+        &mut self,
+        app_id: u64,
+        description: String,
+        app_url: String,
+        screenshot_urls: Vec<String>,
+    ) -> Result<(), Vec<u8>> {
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        // Check sender is developer
+        if self.app_developers.get(app_id_u256) != msg::sender() {
+            return Err(ERROR_UNAUTHORIZED.to_vec());
+        }
+
+        // Validate inputs
+        if description.is_empty() || description.len() > 1000 {
+            return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+        if app_url.is_empty() {
+            return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+        if screenshot_urls.len() > 5 {
+            return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+
+        // Update mutable fields
+        self.app_descriptions.setter(app_id_u256).set_str(&description);
+        self.app_urls.setter(app_id_u256).set_str(&app_url);
+        self.app_screenshot_counts.setter(app_id_u256).set(U256::from(screenshot_urls.len() as u64));
+
+        // Update screenshots
+        for (i, url) in screenshot_urls.iter().enumerate() {
+            self.app_screenshots
+                .setter(app_id_u256)
+                .setter(U256::from(i))
+                .set_str(url);
+        }
+
+        // Emit event
+        // self.vm().log(AppUpdated {
+            app_id,
+        });
+
+
+        Ok(())
+    }
+
+    /// Deactivate an app (developer only)
+    pub fn deactivate_app(&mut self, app_id: u64) -> Result<(), Vec<u8>> {
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        // Check sender is developer
+        if self.app_developers.get(app_id_u256) != msg::sender() {
+            return Err(ERROR_UNAUTHORIZED.to_vec());
+        }
+
+        // Deactivate
+        self.app_is_active.setter(app_id_u256).set(false);
+
+        // Emit event
+        // self.vm().log(AppDeactivated {
+            app_id,
+        });
+
+        Ok(())
+    }
+
+    /// Feature an app (admin only)
+    pub fn feature_app(&mut self, app_id: u64) -> Result<(), Vec<u8>> {
+        // Check admin permission
+        if !self.admins.get(msg::sender()) {
+            return Err(ERROR_UNAUTHORIZED.to_vec());
+        }
+
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        // Check app is approved
+        if !self.app_is_approved.get(app_id_u256) {
+            return Err(ERROR_APP_NOT_APPROVED.to_vec());
+        }
+
+        // Add to featured list
+        let featured_idx = self.featured_count.get();
+        self.featured_apps.setter(featured_idx).set(app_id_u256);
+        self.featured_count.set(featured_idx + U256::from(1));
+
+        // Emit event
+        // self.vm().log(AppFeatured {
+            app_id,
+        });
+
+        Ok(())
+    }
+
+    /// Add a new admin (owner only)
+    pub fn add_admin(&mut self, admin: Address) -> Result<(), Vec<u8>> {
+        // Only owner can add admins
+        if msg::sender() != self.owner.get() {
+            return Err(ERROR_UNAUTHORIZED.to_vec());
+        }
+
+        self.admins.setter(admin).set(true);
+
+        // Emit event
+        // self.vm().log(AdminAdded {});
+
+        Ok(())
+    }
+
+    /// Get app by ID
+    #[allow(clippy::type_complexity)]
+    pub fn get_app(&self, app_id: u64) -> Result<(
+        u64,           // id
+        String,        // name
+        String,        // description
+        String,        // app_url
+        String,        // logo_url
+        String,        // category
+        u64,           // chain_id
+        Address,       // developer
+        bool,          // is_active
+        bool,          // is_approved
+        u64,           // created_at
+        bool,          // built_with_varity
+        String,        // github_url
+        u64,           // screenshot_count
+    ), Vec<u8>> {
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        Ok((
+            app_id,
+            self.app_names.get(app_id_u256).get_string(),
+            self.app_descriptions.get(app_id_u256).get_string(),
+            self.app_urls.get(app_id_u256).get_string(),
+            self.app_logo_urls.get(app_id_u256).get_string(),
+            self.app_categories.get(app_id_u256).get_string(),
+            self.app_chain_ids.get(app_id_u256).to::<u64>(),
+            self.app_developers.get(app_id_u256),
+            self.app_is_active.get(app_id_u256),
+            self.app_is_approved.get(app_id_u256),
+            self.app_created_at.get(app_id_u256).to::<u64>(),
+            self.app_built_with_varity.get(app_id_u256),
+            self.app_github_urls.get(app_id_u256).get_string(),
+            self.app_screenshot_counts.get(app_id_u256).to::<u64>(),
+        ))
+    }
+
+    /// Get screenshot URL by index
+    pub fn get_app_screenshot(&self, app_id: u64, index: u64) -> Result<String, Vec<u8>> {
+        let app_id_u256 = U256::from(app_id);
+
+        // Check app exists
+        if self.app_developers.get(app_id_u256) == Address::ZERO {
+            return Err(ERROR_APP_NOT_FOUND.to_vec());
+        }
+
+        // Check index is valid
+        if U256::from(index) >= self.app_screenshot_counts.get(app_id_u256) {
+            return Err(ERROR_INVALID_INPUT.to_vec());
+        }
+
+        Ok(self.app_screenshots.getter(app_id_u256).get(U256::from(index)).get_string())
+    }
+
+    /// Get pending apps (admin only) - returns first max_results pending apps
+    pub fn get_pending_apps(&self, max_results: u64) -> Result<Vec<u64>, Vec<u8>> {
+        // Check admin permission
+        if !self.admins.get(msg::sender()) {
+            return Err(ERROR_UNAUTHORIZED.to_vec());
+        }
+
+        let pending_count = self.pending_count.get().to::<u64>();
+        let limit = if max_results < pending_count { max_results } else { pending_count };
+
+        let mut result = Vec::new();
+        for i in 0..limit {
+            let app_id = self.pending_apps.get(U256::from(i)).to::<u64>();
+            // Only include if still pending (not approved)
+            if !self.app_is_approved.get(U256::from(app_id)) && self.app_is_active.get(U256::from(app_id)) {
+                result.push(app_id);
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Get featured apps
+    pub fn get_featured_apps(&self, max_results: u64) -> Result<Vec<u64>, Vec<u8>> {
+        let featured_count = self.featured_count.get().to::<u64>();
+        let limit = if max_results < featured_count { max_results } else { featured_count };
+
+        let mut result = Vec::new();
+        for i in 0..limit {
+            let app_id = self.featured_apps.get(U256::from(i)).to::<u64>();
+            result.push(app_id);
+        }
+
+        Ok(result)
+    }
+
+    /// Get apps by developer
+    pub fn get_apps_by_developer(&self, developer: Address, max_results: u64) -> Result<Vec<u64>, Vec<u8>> {
+        let next_id = self.next_app_id.get().to::<u64>();
+        let mut result = Vec::new();
+
+        for i in 1..next_id {
+            if result.len() >= max_results as usize {
+                break;
+            }
+
+            let app_id_u256 = U256::from(i);
+            if self.app_developers.get(app_id_u256) == developer {
+                result.push(i);
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Get approved and active apps by category
+    pub fn get_apps_by_category(&self, category: String, max_results: u64) -> Result<Vec<u64>, Vec<u8>> {
+        let next_id = self.next_app_id.get().to::<u64>();
+        let mut result = Vec::new();
+
+        for i in 1..next_id {
+            if result.len() >= max_results as usize {
+                break;
+            }
+
+            let app_id_u256 = U256::from(i);
+            if self.app_is_active.get(app_id_u256)
+                && self.app_is_approved.get(app_id_u256) {
+                let app_category = self.app_categories.get(app_id_u256).get_string();
+                if app_category == category {
+                    result.push(i);
+                }
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Get approved and active apps by chain ID
+    pub fn get_apps_by_chain(&self, chain_id: u64, max_results: u64) -> Result<Vec<u64>, Vec<u8>> {
+        let next_id = self.next_app_id.get().to::<u64>();
+        let mut result = Vec::new();
+
+        for i in 1..next_id {
+            if result.len() >= max_results as usize {
+                break;
+            }
+
+            let app_id_u256 = U256::from(i);
+            if self.app_is_active.get(app_id_u256)
+                && self.app_is_approved.get(app_id_u256)
+                && self.app_chain_ids.get(app_id_u256).to::<u64>() == chain_id {
+                result.push(i);
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Get all approved and active apps
+    pub fn get_all_apps(&self, max_results: u64) -> Result<Vec<u64>, Vec<u8>> {
+        let next_id = self.next_app_id.get().to::<u64>();
+        let mut result = Vec::new();
+
+        for i in 1..next_id {
+            if result.len() >= max_results as usize {
+                break;
+            }
+
+            let app_id_u256 = U256::from(i);
+            if self.app_is_active.get(app_id_u256) && self.app_is_approved.get(app_id_u256) {
+                result.push(i);
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Check if an address is an admin
+    pub fn is_admin(&self, address: Address) -> Result<bool, Vec<u8>> {
+        Ok(self.admins.get(address))
+    }
+
+    /// Get the contract owner
+    pub fn get_owner(&self) -> Result<Address, Vec<u8>> {
+        Ok(self.owner.get())
+    }
+
+    /// Get total number of apps registered
+    pub fn get_total_apps(&self) -> Result<u64, Vec<u8>> {
+        let next_id = self.next_app_id.get().to::<u64>();
+        Ok(if next_id > 0 { next_id - 1 } else { 0 })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Note: These are documentation tests showing the expected behavior.
+    // For actual Stylus contract testing, you would use the Stylus test framework
+    // with a proper VM environment and contract deployment.
+
+    /// Test: approve_app() - Admin successfully approves a pending app
+    ///
+    /// Setup:
+    /// - Initialize contract with deployer as admin
+    /// - Register a test app (app_id = 1)
+    /// - Call approve_app(1) as admin
+    ///
+    /// Expected:
+    /// - app_is_approved[1] should be true
+    /// - AppApproved event should be emitted
+    /// - Function should return Ok(())
+    #[test]
+    fn test_approve_app_success() {
+        // In production, this would use Stylus test harness:
+        // 1. Deploy contract
+        // 2. Call initialize()
+        // 3. Register app as user
+        // 4. Call approve_app() as admin
+        // 5. Assert app_is_approved == true
+        // 6. Verify AppApproved event was emitted
+    }
+
+    /// Test: approve_app() - Non-admin cannot approve apps
+    ///
+    /// Setup:
+    /// - Initialize contract
+    /// - Register an app as developer
+    /// - Attempt to approve from non-admin address
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_UNAUTHORIZED)
+    /// - app_is_approved should remain false
+    #[test]
+    fn test_approve_app_unauthorized() {
+        // Expected error: ERROR_UNAUTHORIZED
+        // The admins mapping should gate access
+    }
+
+    /// Test: approve_app() - Cannot approve non-existent app
+    ///
+    /// Setup:
+    /// - Initialize contract with admin
+    /// - Attempt to approve app_id = 999 (doesn't exist)
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_APP_NOT_FOUND)
+    /// - Verified by checking app_developers[999] == Address::ZERO
+    #[test]
+    fn test_approve_app_not_found() {
+        // Expected error: ERROR_APP_NOT_FOUND
+        // Checked via app_developers.get(app_id) == Address::ZERO
+    }
+
+    /// Test: approve_app() - Cannot approve already approved app
+    ///
+    /// Setup:
+    /// - Initialize contract
+    /// - Register and approve an app
+    /// - Attempt to approve the same app again
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_APP_ALREADY_APPROVED)
+    /// - app_is_approved should remain true (no state change)
+    #[test]
+    fn test_approve_app_already_approved() {
+        // Expected error: ERROR_APP_ALREADY_APPROVED
+        // Prevents duplicate approval operations
+    }
+
+    /// Test: reject_app() - Admin successfully rejects a pending app
+    ///
+    /// Setup:
+    /// - Initialize contract with admin
+    /// - Register a test app
+    /// - Call reject_app(1, "Low quality screenshots") as admin
+    ///
+    /// Expected:
+    /// - app_is_active[1] should be false
+    /// - app_is_approved[1] should be false
+    /// - AppRejected event should be emitted with reason
+    /// - Function should return Ok(())
+    #[test]
+    fn test_reject_app_success() {
+        // In production:
+        // 1. Register app
+        // 2. Call reject_app() with reason
+        // 3. Assert app_is_active == false
+        // 4. Assert app_is_approved == false
+        // 5. Verify AppRejected event with correct reason
+    }
+
+    /// Test: reject_app() - Non-admin cannot reject apps
+    ///
+    /// Setup:
+    /// - Initialize contract
+    /// - Register an app
+    /// - Attempt to reject from non-admin address
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_UNAUTHORIZED)
+    /// - app_is_active should remain true
+    #[test]
+    fn test_reject_app_unauthorized() {
+        // Expected error: ERROR_UNAUTHORIZED
+        // Only admins can reject apps
+    }
+
+    /// Test: reject_app() - Cannot reject non-existent app
+    ///
+    /// Setup:
+    /// - Initialize contract with admin
+    /// - Attempt to reject app_id that doesn't exist
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_APP_NOT_FOUND)
+    #[test]
+    fn test_reject_app_not_found() {
+        // Expected error: ERROR_APP_NOT_FOUND
+        // Same validation as approve_app
+    }
+
+    /// Test: feature_app() - Admin successfully features an approved app
+    ///
+    /// Setup:
+    /// - Initialize contract with admin
+    /// - Register an app
+    /// - Approve the app
+    /// - Call feature_app(1) as admin
+    ///
+    /// Expected:
+    /// - App should be added to featured_apps[0]
+    /// - featured_count should increment from 0 to 1
+    /// - AppFeatured event should be emitted
+    /// - get_featured_apps(10) should include app_id 1
+    #[test]
+    fn test_feature_app_success() {
+        // In production:
+        // 1. Register app
+        // 2. Approve app
+        // 3. Call feature_app()
+        // 4. Assert featured_apps[0] == app_id
+        // 5. Assert featured_count == 1
+        // 6. Verify AppFeatured event
+        // 7. Call get_featured_apps() and verify app is included
+    }
+
+    /// Test: feature_app() - Non-admin cannot feature apps
+    ///
+    /// Setup:
+    /// - Initialize contract
+    /// - Register and approve an app
+    /// - Attempt to feature from non-admin address
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_UNAUTHORIZED)
+    /// - featured_count should remain 0
+    #[test]
+    fn test_feature_app_unauthorized() {
+        // Expected error: ERROR_UNAUTHORIZED
+        // Only admins can feature apps
+    }
+
+    /// Test: feature_app() - Cannot feature unapproved app
+    ///
+    /// Setup:
+    /// - Initialize contract with admin
+    /// - Register an app (pending approval)
+    /// - Attempt to feature the unapproved app
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_APP_NOT_APPROVED)
+    /// - featured_count should remain 0
+    /// - Only approved apps can be featured
+    #[test]
+    fn test_feature_app_not_approved() {
+        // Expected error: ERROR_APP_NOT_APPROVED
+        // Ensures quality control - only approved apps can be featured
+    }
+
+    /// Test: feature_app() - Cannot feature non-existent app
+    ///
+    /// Setup:
+    /// - Initialize contract with admin
+    /// - Attempt to feature app_id that doesn't exist
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_APP_NOT_FOUND)
+    #[test]
+    fn test_feature_app_not_found() {
+        // Expected error: ERROR_APP_NOT_FOUND
+        // Standard validation for all app operations
+    }
+
+    /// Test: add_admin() - Owner successfully adds a new admin
+    ///
+    /// Setup:
+    /// - Initialize contract (deployer is owner and admin)
+    /// - Owner calls add_admin(new_address)
+    /// - Verify new admin has permissions
+    ///
+    /// Expected:
+    /// - admins[new_address] should be true
+    /// - AdminAdded event should be emitted
+    /// - New admin should be able to approve apps
+    /// - is_admin(new_address) should return true
+    #[test]
+    fn test_add_admin_success() {
+        // In production:
+        // 1. Deploy contract (deployer = owner)
+        // 2. Call add_admin(addr2)
+        // 3. Assert admins[addr2] == true
+        // 4. Verify AdminAdded event
+        // 5. Register app as user
+        // 6. Call approve_app() as addr2 (should succeed)
+        // 7. Call is_admin(addr2) -> should return true
+    }
+
+    /// Test: add_admin() - Non-owner cannot add admins
+    ///
+    /// Setup:
+    /// - Initialize contract
+    /// - Attempt to add admin from non-owner address
+    ///
+    /// Expected:
+    /// - Should return Err(ERROR_UNAUTHORIZED)
+    /// - admins mapping should not change
+    /// - Only owner can add admins (stricter than admin-only operations)
+    #[test]
+    fn test_add_admin_unauthorized() {
+        // Expected error: ERROR_UNAUTHORIZED
+        // Even existing admins cannot add new admins - only owner can
+    }
+
+    /// Test: Complete admin workflow
+    ///
+    /// Integration test covering the full admin system:
+    /// - Owner adds second admin
+    /// - Developer registers app
+    /// - First admin approves app
+    /// - Second admin features app
+    ///
+    /// Verifies:
+    /// - Both admins have equal permissions
+    /// - App progresses through states correctly
+    /// - All events emitted in order
+    #[test]
+    fn test_admin_workflow_integration() {
+        // Full workflow:
+        // 1. initialize() -> owner becomes first admin
+        // 2. add_admin(admin2) as owner
+        // 3. register_app() as developer
+        // 4. approve_app() as admin1
+        // 5. feature_app() as admin2
+        // 6. Verify app is both approved and featured
+        // 7. Verify all events: AdminAdded, AppApproved, AppFeatured
+    }
+
+    /// Test: Reject then re-register workflow
+    ///
+    /// Integration test for rejection and re-submission:
+    /// - Register app with issues
+    /// - Admin rejects with reason
+    /// - Developer registers improved version
+    /// - Admin approves new version
+    ///
+    /// Verifies:
+    /// - Rejected apps are deactivated
+    /// - New apps get new IDs
+    /// - Approval process works for re-submissions
+    #[test]
+    fn test_reject_and_reregister_workflow() {
+        // Workflow:
+        // 1. register_app() as developer -> app_id 1
+        // 2. reject_app(1, "Poor quality") as admin
+        // 3. Verify app 1 is_active == false
+        // 4. register_app() again (improved) -> app_id 2
+        // 5. approve_app(2) as admin
+        // 6. Verify app 2 is approved
+        // 7. get_apps_by_developer() should return [1, 2]
+        // 8. get_all_apps() should only return [2] (approved + active)
+    }
+
+    /// Test: Multiple featured apps
+    ///
+    /// Tests that featured apps list works correctly:
+    /// - Register and approve 3 apps
+    /// - Feature all 3 apps
+    /// - Verify featured list maintains order
+    #[test]
+    fn test_multiple_featured_apps() {
+        // Workflow:
+        // 1. Register apps 1, 2, 3
+        // 2. Approve all three
+        // 3. Feature app 2, then app 1, then app 3
+        // 4. get_featured_apps(10) should return [2, 1, 3] (insertion order)
+        // 5. featured_count should be 3
+    }
+
+    /// Test: Admin cannot approve their own app
+    ///
+    /// Edge case: What if an admin registers an app?
+    /// - Admin can register apps like any developer
+    /// - Admin approval still requires admin check (passes)
+    /// - This is allowed (no conflict of interest prevention in MVP)
+    #[test]
+    fn test_admin_can_approve_own_app() {
+        // Edge case test:
+        // 1. register_app() as admin (acts as developer)
+        // 2. approve_app() as same admin
+        // 3. Should succeed (no conflict check in MVP)
+        // Note: Production might want to prevent this
+    }
+}

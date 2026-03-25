@@ -1,0 +1,63 @@
+{
+  "networks": {
+    "testnet": {
+      "name": "Varity L3 Testnet",
+      "rpc": "https://rpc-varity-testnet-rroe52pwjp.t.conduit.xyz",
+      "chainId": 33529,
+      "explorer": "https://explorer-varity-testnet-rroe52pwjp.t.conduit.xyz",
+      "nativeToken": {
+        "symbol": "USDC",
+        "decimals": 6,
+        "name": "USD Coin"
+      },
+      "gasSettings": {
+        "maxFeePerGas": "auto",
+        "maxPriorityFeePerGas": "auto"
+      }
+    },
+    "mainnet": {
+      "name": "Varity L3 Mainnet",
+      "rpc": "TBD",
+      "chainId": "TBD",
+      "explorer": "TBD",
+      "nativeToken": {
+        "symbol": "USDC",
+        "decimals": 6,
+        "name": "USD Coin"
+      },
+      "gasSettings": {
+        "maxFeePerGas": "auto",
+        "maxPriorityFeePerGas": "auto"
+      }
+    }
+  },
+  "contract": {
+    "name": "VarityAppRegistry",
+    "version": "0.1.0",
+    "language": "Rust",
+    "framework": "Arbitrum Stylus",
+    "optimization": {
+      "enabled": true,
+      "level": "s",
+      "lto": true,
+      "codegenUnits": 1
+    }
+  },
+  "deployment": {
+    "confirmations": 2,
+    "timeout": 300000,
+    "retries": 3,
+    "verifyOnDeploy": true
+  },
+  "postDeploy": {
+    "exportAbi": true,
+    "verifyContract": true,
+    "updateFrontend": true,
+    "notifyTeam": false
+  },
+  "security": {
+    "useHardwareWallet": false,
+    "requireMultisig": false,
+    "auditRequired": false
+  }
+}
