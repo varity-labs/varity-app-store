@@ -38,15 +38,9 @@ export const APP_CATEGORIES = [
 
 export type AppCategory = (typeof APP_CATEGORIES)[number];
 
-// Supported Chains for apps (apps can be deployed on any of these)
+// Supported platforms for apps
 export const SUPPORTED_CHAINS = [
-  { id: 33529, name: "Varity L3" },
-  { id: 421614, name: "Arbitrum Sepolia" },
-  { id: 42161, name: "Arbitrum One" },
-  { id: 1, name: "Ethereum Mainnet" },
-  { id: 137, name: "Polygon" },
-  { id: 10, name: "Optimism" },
-  { id: 8453, name: "Base" },
+  { id: 33529, name: "Varity" },
 ] as const;
 
 // App Status

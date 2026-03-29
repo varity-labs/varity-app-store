@@ -15,12 +15,6 @@ interface AppCardProps {
 // User-friendly platform names
 const platformNames: Record<number, string> = {
   33529: "Varity",
-  421614: "Arbitrum Test",
-  42161: "Arbitrum",
-  8453: "Base",
-  137: "Polygon",
-  10: "Optimism",
-  1: "Ethereum",
 };
 
 function AppCardComponent({ app }: AppCardProps): React.ReactElement {
