@@ -5,13 +5,12 @@
 //!
 //! Key Features:
 //! - App purchases with 90/10 revenue split (90% developer, 10% Varity)
-//! - Developer billing for infrastructure tiers + partnership services (100% to Varity)
+//! - Developer infrastructure billing (100% to Varity)
 //! - Uses ERC-20 USDC on Arbitrum One (requires user to approve() contract first)
 //!
 //! Revenue Streams:
-//! - #1: Infrastructure Tiers ($49-199/mo) - via pay_bill()
-//! - #2: Partnership Margins (20% on Privy/thirdweb) - via pay_bill()
-//! - #3: App Store Commission (10%) - via purchase_app()
+//! - Developer infrastructure costs - via pay_bill()
+//! - App Store Commission (10%) - via purchase_app()
 
 #![cfg_attr(not(feature = "export-abi"), no_main)]
 extern crate alloc;
@@ -74,7 +73,7 @@ sol! {
         uint256 interval_days
     );
 
-    /// Emitted when an app is purchased (Revenue Stream #3)
+    /// Emitted when an app is purchased
     event AppPurchased(
         uint256 indexed app_id,
         address indexed buyer,
@@ -85,7 +84,7 @@ sol! {
         uint256 timestamp
     );
 
-    /// Emitted when a developer pays their bill (Revenue Streams #1 + #2)
+    /// Emitted when a developer pays their infrastructure bill
     event BillingPayment(
         uint256 indexed app_id,
         address indexed developer,
@@ -252,7 +251,7 @@ impl VarityPayments {
         Ok(())
     }
 
-    // ============ Purchase Functions (Revenue Stream #3) ============
+    // ============ Purchase Functions ============
 
     /// Purchase an app — 90% to developer, 10% to Varity treasury
     ///
@@ -324,9 +323,9 @@ impl VarityPayments {
         Ok(())
     }
 
-    // ============ Billing Functions (Revenue Streams #1 + #2) ============
+    // ============ Billing Functions ============
 
-    /// Pay monthly bill for infrastructure + services — 100% to Varity treasury
+    /// Pay monthly bill for developer infrastructure — 100% to Varity treasury
     ///
     /// Uses ERC-20 USDC transferFrom. Developer must approve() this contract
     /// for the bill amount before calling.

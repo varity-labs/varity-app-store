@@ -72,7 +72,7 @@ sol_storage! {
         mapping(uint256 => uint256) app_screenshot_counts;
         /// Infrastructure tier: "free", "starter", "growth", "enterprise"
         mapping(uint256 => string) app_tiers;
-        /// Partnership services used: comma-separated (e.g., "privy,thirdweb,filecoin")
+        /// Infrastructure services used: comma-separated (e.g., "auth,backend,storage")
         mapping(uint256 => string) app_services;
 
         // Screenshot storage (app_id => index => url)
@@ -424,7 +424,7 @@ impl VarityAppRegistry {
         ))
     }
 
-    /// Get app partnership services (comma-separated)
+    /// Get app infrastructure services (comma-separated)
     pub fn get_app_services(&self, app_id: u64) -> Result<String, Vec<u8>> {
         let app_id_u256 = U256::from(app_id);
 

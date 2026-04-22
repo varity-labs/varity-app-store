@@ -1,7 +1,7 @@
 # Varity App Store - User Portal
 
 **Live Site**: https://store.varity.so
-**Purpose**: Consumer-facing marketplace for discovering decentralized applications
+**Purpose**: Consumer-facing marketplace for discovering and using production apps
 **Target Audience**: End users looking for apps to solve their problems
 
 ---
@@ -46,8 +46,8 @@ varity-app-store/           # USER PORTAL (this repo)
 ```
 
 **Separate Repository**:
-Developer portal (app submissions, dashboard, admin) will live at:
-👉 `varity-app-store-developer` (to be created)
+Developer portal (app submissions, dashboard, admin):
+👉 `varity-app-store-developer` — LIVE at https://developer.store.varity.so
 
 ---
 
@@ -128,7 +128,7 @@ NEXT_PUBLIC_THIRDWEB_CLIENT_ID=6e3f891a9c88e09a5d02eb71b7cd2cc9
 
 ## 🔗 Related Repositories
 
-- **Developer Portal**: `varity-app-store-developer` (to be created)
+- **Developer Portal**: https://github.com/varity-labs/varity-app-store-developer (LIVE)
 - **Smart Contracts**: Included in `contracts/` directory (Arbitrum Stylus)
 - **Varity SDK**: https://github.com/varity-labs/varity-sdk
 
@@ -160,4 +160,4 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Last updated**: January 22, 2026 - MVP Launch Ready ✅
+**Last updated**: April 19, 2026 - MVP LIVE, submit → approve → list flow working ✅
