@@ -102,7 +102,7 @@ const faqSections: FAQSection[] = [
       },
       {
         question: "What platforms are supported?",
-        answer: "Applications in our store run on multiple platforms including Varity, Arbitrum, Ethereum, Polygon, Optimism, and Base. You can filter applications by platform using the platform filter on the browse page.",
+        answer: "All applications in our store are deployed on Varity's global infrastructure with built-in security, authentication, and database.",
       },
     ],
   },
