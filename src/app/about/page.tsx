@@ -115,7 +115,7 @@ export default function AboutPage(): ReactElement {
               <FeatureCard
                 icon={<DollarSign className="h-6 w-6" />}
                 title="Cost Savings"
-                description="Apps built with Varity infrastructure can reduce hosting costs by 70-85% compared to traditional cloud providers like AWS."
+                description="Apps built with Varity infrastructure can reduce hosting costs by 60-80% compared to traditional cloud providers like AWS."
               />
               <FeatureCard
                 icon={<Zap className="h-6 w-6" />}
@@ -280,7 +280,7 @@ export default function AboutPage(): ReactElement {
 
               <p className="text-body-md text-foreground-secondary leading-relaxed">
                 Applications built with Varity infrastructure benefit from significant cost savings. By utilizing
-                decentralized compute and storage, businesses can reduce their infrastructure costs by 70-85%
+                decentralized compute and storage, businesses can reduce their infrastructure costs by 60-80%
                 compared to traditional cloud providers while maintaining reliability and performance.
               </p>
             </div>

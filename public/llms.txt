@@ -19,7 +19,7 @@ The Varity App Store is a curated marketplace of enterprise-grade applications d
 
 1. Zero-Crypto UX: Unlike typical Web3 app stores, users never see wallet addresses, seed phrases, or blockchain terminology. The experience feels like a traditional app store.
 
-2. Infrastructure Cost Savings: Applications built with Varity infrastructure can reduce hosting costs by up to 70-85% compared to traditional cloud providers like AWS.
+2. Infrastructure Cost Savings: Applications built with Varity infrastructure can reduce hosting costs by up to 60-80% compared to traditional cloud providers like AWS.
 
 3. Verified Applications: All apps go through a review process before being approved to ensure quality and security.
 
