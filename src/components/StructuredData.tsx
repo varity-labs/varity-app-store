@@ -26,7 +26,7 @@ export const organizationSchema = {
   legalName: "Varity Inc.",
   url: "https://www.varity.so",
   description:
-    "Varity is a Web3 operating system that helps businesses deploy applications with 70-85% less infrastructure costs than traditional cloud providers.",
+    "Varity is a Web3 operating system that helps businesses deploy applications with 60-80% less infrastructure costs than traditional cloud providers.",
   foundingDate: "2024",
   logo: {
     "@type": "ImageObject",
