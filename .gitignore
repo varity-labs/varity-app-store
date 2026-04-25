@@ -53,6 +53,14 @@ Cargo.lock
 *~
 .DS_Store
 
+# Credentials and secrets
+# -----------------------------------------
+*.pem
+*.key
+*.p12
+credentials.json
+service-account*.json
+
 # Logs
 # -----------------------------------------
 *.log
